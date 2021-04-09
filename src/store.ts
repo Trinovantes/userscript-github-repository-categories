@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+
 import { InjectionKey } from 'vue'
 import { createStore, Store, useStore, MutationTree, ActionTree, CommitOptions, ActionContext, DispatchOptions } from 'vuex'
 import { KEY_STATE } from '@/Constants'
@@ -148,7 +150,11 @@ type AugmentedActionContext = {
         key: K,
         payload?: Parameters<Mutations[K]>[1]
     ): ReturnType<Mutations[K]>
-} & Omit<ActionContext<RootState, RootState>, 'commit'>
+    dispatch<K extends keyof Actions>(
+        key: K,
+        payload?: Parameters<Actions[K]>[1]
+    ): ReturnType<Actions[K]>
+} & Omit<ActionContext<RootState, RootState>, 'commit' | 'dispatch'>
 
 interface Actions {
     [RootAction.LOAD]: (context: AugmentedActionContext) => Promise<void>
