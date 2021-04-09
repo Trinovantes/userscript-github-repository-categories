@@ -87,6 +87,12 @@
             >
                 Save
             </a>
+            <a
+                class="btn"
+                @click="onReset"
+            >
+                Reset to Defaults
+            </a>
             <div class="hspace" />
             <a
                 class="btn"
@@ -165,10 +171,6 @@ export default defineComponent({
             })
         }
 
-        const onClose = () => {
-            emit('close')
-        }
-
         const onSave = async() => {
             messages.value = []
 
@@ -199,6 +201,18 @@ export default defineComponent({
             })
         }
 
+        const onReset = async() => {
+            await store.dispatch(RootAction.RESET)
+            messages.value.push({
+                label: 'Successfully resetted everything to defaults',
+                type: 'success',
+            })
+        }
+
+        const onClose = () => {
+            emit('close')
+        }
+
         return {
             messages,
 
@@ -211,6 +225,7 @@ export default defineComponent({
             setCategoryPriority,
 
             onSave,
+            onReset,
             onClose,
         }
     },

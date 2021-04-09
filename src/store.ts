@@ -140,6 +140,7 @@ const mutations: MutationTree<RootState> & Mutations = {
 export enum RootAction {
     LOAD = 'LOAD',
     SAVE = 'SAVE',
+    RESET = 'RESET',
 }
 
 type AugmentedActionContext = {
@@ -152,6 +153,7 @@ type AugmentedActionContext = {
 interface Actions {
     [RootAction.LOAD]: (context: AugmentedActionContext) => Promise<void>
     [RootAction.SAVE]: (context: AugmentedActionContext) => Promise<void>
+    [RootAction.RESET]: (context: AugmentedActionContext) => Promise<void>
 }
 
 const actions: ActionTree<RootState, RootState> & Actions = {
@@ -179,6 +181,14 @@ const actions: ActionTree<RootState, RootState> & Actions = {
         } catch (err) {
             console.warn(DEFINE.NAME, err)
         }
+    },
+
+    [RootAction.RESET]: async({ commit, dispatch }) => {
+        commit(RootMutation.SET_STATE, {
+            ...createDefaultState(),
+        })
+
+        await dispatch(RootAction.SAVE)
     },
 }
 

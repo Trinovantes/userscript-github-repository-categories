@@ -115,6 +115,21 @@ export default defineComponent({
         }
     }
 
+    a.settings-btn{
+        @extend .icon-btn;
+
+        background-image: url('@/assets/img/settings.png');
+        box-shadow: rgba(11, 11, 11, 0.1) 0 2px 8px;
+
+        position: fixed;
+        bottom: $padding; right: $padding;
+        z-index: 9999;
+
+        &:hover{
+            box-shadow: rgba(11, 11, 11, 0.4) 0 0px 8px;
+        }
+    }
+
     .dialog-wrapper{
         background: rgba(11, 11, 11, 0.4);
 
@@ -148,21 +163,6 @@ export default defineComponent({
                 font-size: 21px;
                 font-weight: bold;
             }
-        }
-    }
-
-    a.settings-btn{
-        @extend .icon-btn;
-
-        background-image: url('@/assets/img/settings.png');
-        box-shadow: rgba(11, 11, 11, 0.1) 0 2px 8px;
-
-        position: fixed;
-        bottom: $padding; right: $padding;
-        z-index: 9999;
-
-        &:hover{
-            box-shadow: rgba(11, 11, 11, 0.4) 0 0px 8px;
         }
     }
 }
