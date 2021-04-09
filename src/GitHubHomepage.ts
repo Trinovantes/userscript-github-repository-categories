@@ -1,167 +1,146 @@
-import { EOL } from 'os'
+import { Category } from '@/store'
+import { waitDelayedPredicate } from '@/utils'
 
-// ----------------------------------------------------------------------------
-// Constants
-// ----------------------------------------------------------------------------
-
-const UI_WAIT_TIME = 500
-
-// In order of appearance
-enum Categories {
-    PROJECTS = 'Projects',
-    TEMPLATE = 'Templates',
-    GITHUB_ACTION = 'GitHub Actions',
-    USERSCRIPTS = 'Userscripts',
-    EXTERNALS = 'Externals', // Anything that doesn't belong to current user
-    SCHOOL = 'School',
-    MISC = 'Miscellaneous', // Anything that doesn't match
-}
-
-type CategorizedRepositories = {
-    [key in Categories]?: Array<{
-        owner: string,
-        name: string,
-        node: HTMLElement,
+interface Bucket {
+    title: string
+    regexp: RegExp
+    priority: number
+    repos: Array<{
+        owner: string
+        name: string
+        liNode: HTMLElement
     }>
 }
 
-type Matcher = {
-    name: Categories,
-    regex: RegExp,
-}
+export class GitHubHomepage {
+    readonly username: string
+    hasOpened: boolean
 
-// In order matching priority
-const Matchers: Array<Matcher> = [
-    {
-        name: Categories.TEMPLATE,
-        regex: /^template-/,
-    },
-    {
-        name: Categories.GITHUB_ACTION,
-        regex: /^action-/,
-    },
-    {
-        name: Categories.USERSCRIPTS,
-        regex: /^userscript-/,
-    },
-    {
-        name: Categories.SCHOOL,
-        regex: /^[A-Z]+([\d]+)-/,
-    },
-    {
-        name: Categories.PROJECTS,
-        regex: /^(\d+)?[A-Z]/,
-    },
-]
-
-// ----------------------------------------------------------------------------
-// GitHubHomepage
-// ----------------------------------------------------------------------------
-
-export default class GitHubHomepage {
     constructor() {
-        console.info(
-            '-'.repeat(80) + EOL +
-            'Initializing GitHubHomepage' + EOL +
-            '-'.repeat(80) + EOL)
+        this.username = $('.dashboard-sidebar summary > span.css-truncate').text().trim()
+        this.hasOpened = false
+
+        console.info(DEFINE.NAME, 'GitHubHomepage::GitHubHomepage()')
+        console.info(DEFINE.NAME, 'Username:', this.username)
     }
 
-    async run(): Promise<void> {
-        const username = $('.dashboard-sidebar summary > span.css-truncate').text().trim()
-        console.log('Username:', username)
+    async run(categories: Array<Category>): Promise<void> {
+        await this.openRepoList()
+        this.organizeRepos(categories)
+    }
 
-        const root = $('#repos-container')
+    private async openRepoList(): Promise<void> {
+        if (this.hasOpened) {
+            return
+        }
 
-        // Get full list of repos
-        const showMoreBtn = root.find('> form.js-more-repos-form > button')
-        showMoreBtn.trigger('click')
-        await sleep(UI_WAIT_TIME)
+        const $root = $('#repos-container')
+        const $showMoreBtn = $root.find('> form.js-more-repos-form > button')
+        $showMoreBtn?.trigger('click')
 
-        // Categorize repos
-        const categoriesNodes = initCategories()
-        const repoRows = root.find('> ul[data-filterable-for="dashboard-repos-filter-left"] > li')
-        for (const repoRow of repoRows) {
+        // Wait until the "Show more" button is no longer visible
+        await waitDelayedPredicate(() => {
+            return $showMoreBtn?.[0]?.offsetParent === null
+        })
+
+        this.hasOpened = true
+    }
+
+    private organizeRepos(categories: Array<Category>): void {
+        const buckets: Array<Bucket> = initBuckets(categories)
+        const priorityBuckets: Array<Bucket> = [...buckets].sort((b1, b2) => b2.priority - b1.priority)
+        const externalBucket: Bucket = {
+            title: 'External',
+            regexp: /.*/,
+            priority: 0,
+            repos: [],
+        }
+
+        const $root = $('#repos-container')
+
+        // Categorize repos into buckets
+        const $repoRows = $root.find('> ul > li')
+        for (const repoRow of $repoRows) {
             const ownerName = $(repoRow).find('a > span:nth-of-type(1)').text()
             const repoName = $(repoRow).find('a > span:nth-of-type(2)').text()
-            console.log('Repository', ownerName, repoName)
 
-            let category: Categories
-
-            if (ownerName !== username) {
-                category = Categories.EXTERNALS
-            } else {
-                category = findMatch(repoName)
-            }
-
-            categoriesNodes[category]?.push({
-                owner: ownerName,
-                name: repoName,
-                node: repoRow,
-            })
-        }
-
-        // Render repos in categories
-        root.find('> ul[data-filterable-for="dashboard-repos-filter-left"]').remove()
-        root.addClass('github-repository-categories')
-        for (const [category, repos] of Object.entries(categoriesNodes)) {
-            if (!repos?.length) {
-                continue
-            }
-
-            const ul = $('<ul>')
-            for (const repo of repos) {
-                const li = repo.node
-
-                // Remove 'username/' prefix from our own repos
-                if (repo.owner === username) {
-                    const icon = $(li).find('a > div').clone()
-                    const repoLabel = $(li).find('a > span:nth-of-type(2)').clone()
-
-                    const a = $(li).find('a')
-                    const aClone = a.clone()
-                    aClone.text('')
-                    aClone.append(icon)
-                    aClone.append(repoLabel)
-                    a.replaceWith(aClone)
+            if (ownerName === this.username) {
+                for (const bucket of priorityBuckets) {
+                    if (bucket.regexp.test(repoName)) {
+                        bucket.repos.push({
+                            owner: ownerName,
+                            name: repoName,
+                            liNode: repoRow,
+                        })
+                        break
+                    }
                 }
+            } else {
+                externalBucket.repos.push({
+                    owner: ownerName,
+                    name: `${ownerName}/${repoName}`,
+                    liNode: repoRow,
+                })
+            }
+        }
 
-                ul.append(li)
+        // Render repos into categories
+        $root.find('> ul li').remove()
+        $root.find('> h3').remove()
+        $root.addClass('github-repository-categories')
+        for (const bucket of buckets) {
+            this.renderBucket(bucket, $root)
+        }
+
+        this.renderBucket(externalBucket, $root)
+    }
+
+    private renderBucket(bucket: Bucket, $root: JQuery) {
+        if (!bucket.repos.length) {
+            return
+        }
+
+        const $ul = $('<ul>')
+        for (const repo of bucket.repos) {
+            const li = repo.liNode
+
+            // Remove 'username/' prefix from our own repos
+            if (repo.owner === this.username) {
+                const $ownerLabel = $(li).find('a > span:nth-of-type(1)')
+                $ownerLabel.hide()
+
+                const $a = $(li).find('a')
+                for (const node of $a[0].childNodes) {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        node.remove()
+                    }
+                }
             }
 
-            root.append(`<h3>${category}</h3>`)
-            root.append(ul)
+            $ul.append(li)
         }
+
+        $root.append(`<h3>${bucket.title || 'Untitled Category'}</h3>`)
+        $root.append($ul)
     }
 }
 
-// ----------------------------------------------------------------------------
-// Helpers
-// ----------------------------------------------------------------------------
-
-function sleep(timeout: number): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve()
-        }, timeout)
+function initBuckets(categories: Array<Category>): Array<Bucket> {
+    const buckets = categories.map((category) => {
+        return {
+            title: category.title,
+            regexp: new RegExp(category.regexp),
+            priority: category.priority,
+            repos: [],
+        }
     })
-}
 
-function initCategories(): CategorizedRepositories {
-    const dict: CategorizedRepositories = {}
+    buckets.push({
+        title: 'Uncategorized',
+        regexp: /.*/,
+        priority: 0,
+        repos: [],
+    })
 
-    for (const category of Object.values(Categories)) {
-        dict[category] = []
-    }
-
-    return dict
-}
-
-function findMatch(repoName: string): Categories {
-    for (const matcher of Matchers) {
-        if (matcher.regex.exec(repoName)) {
-            return matcher.name
-        }
-    }
-
-    return Categories.MISC
+    return buckets
 }
