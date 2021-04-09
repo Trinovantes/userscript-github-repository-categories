@@ -307,6 +307,31 @@ function validateRegex(regexp: string): Message | null {
     }
 }
 
+input{
+    border: $border;
+    border-radius: $border-radius;
+    padding: $padding / 4;
+
+    &:focus{
+        border-color: black;
+    }
+}
+
+a.bubble,
+a.delete{
+    @extend .icon-btn;
+
+    background-size: cover;
+    width: $btn-size / 2;
+    height: $btn-size / 2;
+}
+a.bubble{
+    background-image: url('@/assets/img/bubble.png');
+}
+a.delete{
+    background-image: url('@/assets/img/delete.png');
+}
+
 table{
     @extend .margins;
 
@@ -340,34 +365,6 @@ table{
                 padding-bottom: 0;
             }
         }
-    }
-
-    input{
-        border: $border;
-        border-radius: $border-radius;
-        outline: none;
-        padding: $padding / 4;
-
-        &:focus{
-            border-color: black;
-        }
-    }
-
-    a.bubble,
-    a.delete{
-        @extend .icon-btn;
-
-        background-size: cover;
-        width: $btn-size / 2;
-        height: $btn-size / 2;
-    }
-
-    a.bubble{
-        background-image: url('@/assets/img/bubble.png');
-    }
-
-    a.delete{
-        background-image: url('@/assets/img/delete.png');
     }
 }
 </style>
