@@ -1,6 +1,6 @@
 # GitHub Repository Categories
 
-Categorizes GitHub repositories by matching repository names with regular expressions.
+Categorize GitHub repositories by matching repository names with regular expressions
 
 ![](.github/img/preview.png)
 
