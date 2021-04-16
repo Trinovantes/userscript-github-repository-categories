@@ -75,16 +75,20 @@ export interface SetCategoryPayload {
 }
 
 type Mutations<S = RootState> = {
-    [RootMutation.SET_STATE]: (state: S, replacement: S) => void
+    [RootMutation.SET_STATE]: (state: S, replacement?: S) => void
     [RootMutation.ADD_CATEGORY]: (state: S) => void
-    [RootMutation.DELETE_CATEGORY]: (state: S, idx: number) => void
-    [RootMutation.BUBBLE_CATEGORY]: (state: S, idx: number) => void
+    [RootMutation.DELETE_CATEGORY]: (state: S, idx?: number) => void
+    [RootMutation.BUBBLE_CATEGORY]: (state: S, idx?: number) => void
     [RootMutation.SET_CATEGORY]: (state: S, payload?: SetCategoryPayload) => void
 }
 
 const mutations: MutationTree<RootState> & Mutations = {
-    [RootMutation.SET_STATE]: (state: RootState, replacement: RootState) => {
+    [RootMutation.SET_STATE]: (state: RootState, replacement?: RootState) => {
         console.info(DEFINE.NAME, RootMutation.SET_STATE)
+
+        if (replacement === undefined) {
+            throw new Error('Missing Payload')
+        }
 
         Object.assign(state, replacement)
     },
@@ -226,8 +230,8 @@ export type TypedStore = Omit<Store<RootState>, 'commit' | 'dispatch'> & {
     ): ReturnType<Actions[K]>
 }
 
-// eslint-disable-next-line symbol-description
-export const key: InjectionKey<Store<RootState>> = Symbol()
+export const key: InjectionKey<TypedStore> = Symbol('Vuex InjectionKey')
+
 export function useTypedStore(): TypedStore {
     return useStore(key)
 }
