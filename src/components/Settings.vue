@@ -241,14 +241,14 @@ function validateNumber(n: number, label: string, min?: number, max?: number): A
         })
     }
 
-    if (min && n < min) {
+    if (min !== undefined && n < min) {
         errors.push({
             label: `${label} "${n}" must be greater than ${min}`,
             type: 'error',
         })
     }
 
-    if (max && n > max) {
+    if (max !== undefined && n > max) {
         errors.push({
             label: `${label} "${n}" must be less than ${max}`,
             type: 'error',
