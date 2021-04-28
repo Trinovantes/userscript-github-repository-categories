@@ -31,7 +31,7 @@
 
 <script lang="ts">
 import { GitHubHomepage } from '@/GitHubHomepage'
-import { useTypedStore } from '@/store'
+import { RootAction, useTypedStore } from '@/store'
 import { ref, defineComponent, computed, watch, onMounted } from 'vue'
 import Settings from './Settings.vue'
 
@@ -49,7 +49,10 @@ export default defineComponent({
             await githubHomepage.run(store.state.categories)
         }
 
-        onMounted(render)
+        onMounted(async() => {
+            await store.dispatch(RootAction.LOAD)
+            await render()
+        })
         watch(categories, render, {
             deep: true,
         })

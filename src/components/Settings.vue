@@ -123,7 +123,7 @@ export default defineComponent({
         const messages = ref<Array<Message>>([])
 
         onMounted(async() => {
-            await store.dispatch(RootAction.LOAD, undefined)
+            await store.dispatch(RootAction.LOAD)
         })
 
         const categories = computed(() => store.state.categories)
