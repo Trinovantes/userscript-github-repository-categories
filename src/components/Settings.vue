@@ -1,106 +1,104 @@
 <template>
-    <div>
-        <div class="group">
-            <div
-                v-for="[idx, message] of Object.entries(messages)"
-                :key="idx"
-                :class="`message ${message.type}`"
-            >
-                {{ message.label }}
-            </div>
-
-            <h3>Categories</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <td />
-                        <td>Title</td>
-                        <td>RegExp</td>
-                        <td>Priority</td>
-                        <td />
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="[idx, category] of Object.entries(categories)"
-                        :key="idx"
-                        class="category"
-                    >
-                        <td>
-                            <a
-                                class="bubble"
-                                title="Bubble category to top"
-                                @click="bubbleCategory(idx)"
-                            >
-                                Bubble
-                            </a>
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                :value="category.title"
-                                @input="(val) => setCategoryTitle(idx, val)"
-                            >
-                        </td>
-                        <td>
-                            <input
-                                type="text"
-                                spellcheck="false"
-                                :value="category.regexp"
-                                @input="(val) => setCategoryRegex(idx, val)"
-                            >
-                        </td>
-                        <td>
-                            <input
-                                type="number"
-                                title="Higher priority RegExp will be checked first"
-                                placeholder="Priority"
-                                :value="category.priority"
-                                @input="(val) => setCategoryPriority(idx, val)"
-                            >
-                        </td>
-                        <td>
-                            <a
-                                class="delete"
-                                title="Delete category"
-                                @click="deleteCategory(idx)"
-                            >
-                                Delete
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <a
-                class="btn"
-                @click="addCategory"
-            >
-                Add Category
-            </a>
+    <div class="group">
+        <div
+            v-for="[idx, message] of Object.entries(messages)"
+            :key="idx"
+            :class="`message ${message.type}`"
+        >
+            {{ message.label }}
         </div>
 
-        <div class="group actions">
-            <a
-                class="btn positive"
-                @click="onSave"
-            >
-                Save
-            </a>
-            <a
-                class="btn"
-                @click="onReset"
-            >
-                Reset to Defaults
-            </a>
-            <div class="hspace" />
-            <a
-                class="btn"
-                @click="onClose"
-            >
-                Close
-            </a>
-        </div>
+        <h3>Categories</h3>
+        <table>
+            <thead>
+                <tr>
+                    <td />
+                    <td>Title</td>
+                    <td>RegExp</td>
+                    <td>Priority</td>
+                    <td />
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    v-for="[idx, category] of Object.entries(categories)"
+                    :key="idx"
+                    class="category"
+                >
+                    <td>
+                        <a
+                            class="bubble"
+                            title="Bubble category to top"
+                            @click="bubbleCategory(idx)"
+                        >
+                            Bubble
+                        </a>
+                    </td>
+                    <td>
+                        <input
+                            type="text"
+                            :value="category.title"
+                            @input="(val) => setCategoryTitle(idx, val)"
+                        >
+                    </td>
+                    <td>
+                        <input
+                            type="text"
+                            spellcheck="false"
+                            :value="category.regexp"
+                            @input="(val) => setCategoryRegex(idx, val)"
+                        >
+                    </td>
+                    <td>
+                        <input
+                            type="number"
+                            title="Higher priority RegExp will be checked first"
+                            placeholder="Priority"
+                            :value="category.priority"
+                            @input="(val) => setCategoryPriority(idx, val)"
+                        >
+                    </td>
+                    <td>
+                        <a
+                            class="delete"
+                            title="Delete category"
+                            @click="deleteCategory(idx)"
+                        >
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a
+            class="btn"
+            @click="addCategory"
+        >
+            Add Category
+        </a>
+    </div>
+
+    <div class="group actions">
+        <a
+            class="btn positive"
+            @click="onSave"
+        >
+            Save
+        </a>
+        <a
+            class="btn"
+            @click="onReset"
+        >
+            Reset to Defaults
+        </a>
+        <div class="hspace" />
+        <a
+            class="btn"
+            @click="onClose"
+        >
+            Close
+        </a>
     </div>
 </template>
 
