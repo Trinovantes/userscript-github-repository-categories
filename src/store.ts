@@ -1,5 +1,3 @@
-/* eslint-disable no-use-before-define */
-
 import { InjectionKey } from 'vue'
 import { createStore, Store, useStore, MutationTree, ActionTree, CommitOptions, ActionContext, DispatchOptions } from 'vuex'
 import { KEY_STATE } from '@/Constants'
@@ -74,12 +72,12 @@ export interface SetCategoryPayload {
     category: Category
 }
 
-type Mutations<S = RootState> = {
-    [RootMutation.SET_STATE]: (state: S, replacement?: S) => void
-    [RootMutation.ADD_CATEGORY]: (state: S) => void
-    [RootMutation.DELETE_CATEGORY]: (state: S, idx?: number) => void
-    [RootMutation.BUBBLE_CATEGORY]: (state: S, idx?: number) => void
-    [RootMutation.SET_CATEGORY]: (state: S, payload?: SetCategoryPayload) => void
+interface Mutations {
+    [RootMutation.SET_STATE]: (state: RootState, replacement?: RootState) => void
+    [RootMutation.ADD_CATEGORY]: (state: RootState) => void
+    [RootMutation.DELETE_CATEGORY]: (state: RootState, idx?: number) => void
+    [RootMutation.BUBBLE_CATEGORY]: (state: RootState, idx?: number) => void
+    [RootMutation.SET_CATEGORY]: (state: RootState, payload?: SetCategoryPayload) => void
 }
 
 const mutations: MutationTree<RootState> & Mutations = {
@@ -149,6 +147,7 @@ export enum RootAction {
     RESET = 'RESET',
 }
 
+/* eslint-disable no-use-before-define */
 type AugmentedActionContext = {
     commit<K extends keyof Mutations>(
         key: K,
@@ -216,10 +215,10 @@ export function createRootStore(): Store<RootState> {
     })
 }
 
-export type TypedStore = Omit<Store<RootState>, 'commit' | 'dispatch'> & {
-    commit<K extends keyof Mutations, P extends Parameters<Mutations[K]>[1]>(
+type TypedStore = Omit<Store<RootState>, 'commit' | 'dispatch'> & {
+    commit<K extends keyof Mutations>(
         key: K,
-        payload?: P,
+        payload?: Parameters<Mutations[K]>[1],
         options?: CommitOptions
     ): ReturnType<Mutations[K]>
 } & {
