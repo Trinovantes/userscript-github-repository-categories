@@ -274,7 +274,7 @@ function validateRegex(regexp: string): Message | null {
 .message{
     @extend .margins;
 
-    padding: ($padding / 2) $padding;
+    padding: math.div($padding, 2) $padding;
 
     &.error{
         background: darkred;
@@ -298,7 +298,7 @@ function validateRegex(regexp: string): Message | null {
 
 .actions{
     display: flex;
-    gap: $padding / 2;
+    gap: math.div($padding, 2);
 
     .hspace{
         flex: 1;
@@ -308,7 +308,7 @@ function validateRegex(regexp: string): Message | null {
 input{
     border: $border;
     border-radius: $border-radius;
-    padding: $padding / 4;
+    padding: math.div($padding, 4);
 
     &:focus{
         border-color: black;
@@ -320,8 +320,8 @@ a.delete{
     @extend .icon-btn;
 
     background-size: cover;
-    width: $btn-size / 2;
-    height: $btn-size / 2;
+    width: math.div($btn-size, 2);
+    height: math.div($btn-size, 2);
 }
 a.bubble{
     background-image: url('@/assets/img/bubble.png');
@@ -336,14 +336,14 @@ table{
     thead{
         td{
             font-weight: bold;
-            padding-top: $padding / 4 !important;
-            padding-bottom: $padding / 4 !important;
+            padding-top: math.div($padding, 4) !important;
+            padding-bottom: math.div($padding, 4) !important;
         }
     }
 
     tr{
         td{
-            padding: $padding / 4;
+            padding: math.div($padding, 4);
 
             &:first-child{
                 padding-left: 0;
