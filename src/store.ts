@@ -1,5 +1,5 @@
 import { InjectionKey } from 'vue'
-import { createStore, Store, useStore, MutationTree, ActionTree, CommitOptions, ActionContext, DispatchOptions } from 'vuex'
+import { createStore as _createStore, Store, useStore, MutationTree, ActionTree, CommitOptions, ActionContext, DispatchOptions } from 'vuex'
 import { KEY_STATE } from '@/Constants'
 
 // ----------------------------------------------------------------------------
@@ -12,12 +12,12 @@ export interface Category {
     priority: number
 }
 
-export interface RootState {
+export interface State {
     categories: Array<Category>
 }
 
-function createDefaultState(): RootState {
-    const defaultState: RootState = {
+function createDefaultState(): State {
+    const defaultState: State = {
         categories: [
             {
                 title: 'Projects',
@@ -59,7 +59,7 @@ function createDefaultState(): RootState {
 // Mutations
 // ----------------------------------------------------------------------------
 
-export enum RootMutation {
+export enum Mutation {
     SET_STATE = 'SET_STATE',
     ADD_CATEGORY = 'ADD_CATEGORY',
     DELETE_CATEGORY = 'DELETE_CATEGORY',
@@ -73,16 +73,16 @@ export interface SetCategoryPayload {
 }
 
 interface Mutations {
-    [RootMutation.SET_STATE]: (state: RootState, replacement?: RootState) => void
-    [RootMutation.ADD_CATEGORY]: (state: RootState) => void
-    [RootMutation.DELETE_CATEGORY]: (state: RootState, idx?: number) => void
-    [RootMutation.BUBBLE_CATEGORY]: (state: RootState, idx?: number) => void
-    [RootMutation.SET_CATEGORY]: (state: RootState, payload?: SetCategoryPayload) => void
+    [Mutation.SET_STATE]: (state: State, replacement?: State) => void
+    [Mutation.ADD_CATEGORY]: (state: State) => void
+    [Mutation.DELETE_CATEGORY]: (state: State, idx?: number) => void
+    [Mutation.BUBBLE_CATEGORY]: (state: State, idx?: number) => void
+    [Mutation.SET_CATEGORY]: (state: State, payload?: SetCategoryPayload) => void
 }
 
-const mutations: MutationTree<RootState> & Mutations = {
-    [RootMutation.SET_STATE]: (state: RootState, replacement?: RootState) => {
-        console.info(DEFINE.NAME, RootMutation.SET_STATE)
+const mutations: MutationTree<State> & Mutations = {
+    [Mutation.SET_STATE]: (state: State, replacement?: State) => {
+        console.info(DEFINE.NAME, Mutation.SET_STATE)
 
         if (replacement === undefined) {
             throw new Error('Missing Payload')
@@ -91,8 +91,8 @@ const mutations: MutationTree<RootState> & Mutations = {
         Object.assign(state, replacement)
     },
 
-    [RootMutation.ADD_CATEGORY]: (state: RootState) => {
-        console.info(DEFINE.NAME, RootMutation.ADD_CATEGORY)
+    [Mutation.ADD_CATEGORY]: (state: State) => {
+        console.info(DEFINE.NAME, Mutation.ADD_CATEGORY)
 
         state.categories.push({
             title: '',
@@ -101,8 +101,8 @@ const mutations: MutationTree<RootState> & Mutations = {
         })
     },
 
-    [RootMutation.DELETE_CATEGORY]: (state: RootState, idx?: number) => {
-        console.info(DEFINE.NAME, RootMutation.DELETE_CATEGORY)
+    [Mutation.DELETE_CATEGORY]: (state: State, idx?: number) => {
+        console.info(DEFINE.NAME, Mutation.DELETE_CATEGORY)
 
         if (idx === undefined) {
             throw new Error('Missing Payload')
@@ -111,8 +111,8 @@ const mutations: MutationTree<RootState> & Mutations = {
         state.categories.splice(idx, 1)
     },
 
-    [RootMutation.BUBBLE_CATEGORY]: (state: RootState, idx?: number) => {
-        console.info(DEFINE.NAME, RootMutation.BUBBLE_CATEGORY)
+    [Mutation.BUBBLE_CATEGORY]: (state: State, idx?: number) => {
+        console.info(DEFINE.NAME, Mutation.BUBBLE_CATEGORY)
 
         if (idx === undefined) {
             throw new Error('Missing Payload')
@@ -126,8 +126,8 @@ const mutations: MutationTree<RootState> & Mutations = {
         ]
     },
 
-    [RootMutation.SET_CATEGORY]: (state: RootState, payload?: SetCategoryPayload) => {
-        console.info(DEFINE.NAME, RootMutation.SET_CATEGORY)
+    [Mutation.SET_CATEGORY]: (state: State, payload?: SetCategoryPayload) => {
+        console.info(DEFINE.NAME, Mutation.SET_CATEGORY)
 
         if (payload === undefined) {
             throw new Error('Missing Payload')
@@ -141,63 +141,66 @@ const mutations: MutationTree<RootState> & Mutations = {
 // Actions
 // ----------------------------------------------------------------------------
 
-export enum RootAction {
+export enum Action {
     LOAD = 'LOAD',
     SAVE = 'SAVE',
     RESET = 'RESET',
 }
 
-/* eslint-disable no-use-before-define */
-type AugmentedActionContext = {
+type TypedActionContext = Omit<ActionContext<State, State>, 'commit' | 'dispatch' | 'getters' | 'rootState' | 'rootGetters'> & {
     commit<K extends keyof Mutations>(
         key: K,
         payload?: Parameters<Mutations[K]>[1]
     ): ReturnType<Mutations[K]>
+
+    // eslint-disable-next-line no-use-before-define
     dispatch<K extends keyof Actions>(
         key: K,
+        // eslint-disable-next-line no-use-before-define
         payload?: Parameters<Actions[K]>[1]
+    // eslint-disable-next-line no-use-before-define
     ): ReturnType<Actions[K]>
-} & Omit<ActionContext<RootState, RootState>, 'commit' | 'dispatch'>
-
-interface Actions {
-    [RootAction.LOAD]: (context: AugmentedActionContext) => Promise<void>
-    [RootAction.SAVE]: (context: AugmentedActionContext) => Promise<void>
-    [RootAction.RESET]: (context: AugmentedActionContext) => Promise<void>
 }
 
-const actions: ActionTree<RootState, RootState> & Actions = {
-    [RootAction.LOAD]: async({ commit }) => {
+interface Actions {
+    [Action.LOAD]: (context: TypedActionContext) => Promise<void>
+    [Action.SAVE]: (context: TypedActionContext) => Promise<void>
+    [Action.RESET]: (context: TypedActionContext) => Promise<void>
+}
+
+const actions: ActionTree<State, State> & Actions = {
+    [Action.LOAD]: async({ commit }) => {
         try {
             const stateString = await GM.getValue(KEY_STATE, '{}') || '{}'
-            const parsedState = JSON.parse(stateString) as RootState
+            const parsedState = JSON.parse(stateString) as State
 
-            commit(RootMutation.SET_STATE, {
+            commit(Mutation.SET_STATE, {
                 ...createDefaultState(),
                 ...parsedState,
             })
 
-            console.info(DEFINE.NAME, RootAction.LOAD, parsedState)
+            console.info(DEFINE.NAME, Action.LOAD, parsedState)
         } catch (err) {
             console.warn(DEFINE.NAME, err)
         }
     },
 
-    [RootAction.SAVE]: async({ state }) => {
+    [Action.SAVE]: async({ state }) => {
         try {
             const stateString = JSON.stringify(state)
             await GM.setValue(KEY_STATE, stateString)
-            console.info(DEFINE.NAME, RootAction.SAVE, `'${stateString}'`)
+            console.info(DEFINE.NAME, Action.SAVE, `'${stateString}'`)
         } catch (err) {
             console.warn(DEFINE.NAME, err)
         }
     },
 
-    [RootAction.RESET]: async({ commit, dispatch }) => {
-        commit(RootMutation.SET_STATE, {
+    [Action.RESET]: async({ commit, dispatch }) => {
+        commit(Mutation.SET_STATE, {
             ...createDefaultState(),
         })
 
-        await dispatch(RootAction.SAVE)
+        await dispatch(Action.SAVE)
     },
 }
 
@@ -205,8 +208,8 @@ const actions: ActionTree<RootState, RootState> & Actions = {
 // TypeScript Helpers
 // ----------------------------------------------------------------------------
 
-export function createRootStore(): Store<RootState> {
-    return createStore<RootState>({
+export function createStore(): Store<State> {
+    return _createStore<State>({
         strict: DEFINE.IS_DEV,
 
         state: createDefaultState,
@@ -215,7 +218,7 @@ export function createRootStore(): Store<RootState> {
     })
 }
 
-type TypedStore = Omit<Store<RootState>, 'commit' | 'dispatch'> & {
+type TypedStore = Omit<Store<State>, 'commit' | 'dispatch' | 'getters'> & {
     commit<K extends keyof Mutations>(
         key: K,
         payload?: Parameters<Mutations[K]>[1],

@@ -103,7 +103,7 @@
 </template>
 
 <script lang="ts">
-import { RootAction, RootMutation, useTypedStore } from '@/store'
+import { Action, Mutation, useTypedStore } from '@/store'
 import { computed, defineComponent, onMounted, ref } from 'vue'
 
 interface Message {
@@ -121,25 +121,25 @@ export default defineComponent({
         const messages = ref<Array<Message>>([])
 
         onMounted(async() => {
-            await store.dispatch(RootAction.LOAD)
+            await store.dispatch(Action.LOAD)
         })
 
         const categories = computed(() => store.state.categories)
 
         const addCategory = () => {
-            store.commit(RootMutation.ADD_CATEGORY)
+            store.commit(Mutation.ADD_CATEGORY)
         }
 
         const deleteCategory = (idx: number) => {
-            store.commit(RootMutation.DELETE_CATEGORY, idx)
+            store.commit(Mutation.DELETE_CATEGORY, idx)
         }
 
         const bubbleCategory = (idx: number) => {
-            store.commit(RootMutation.BUBBLE_CATEGORY, idx)
+            store.commit(Mutation.BUBBLE_CATEGORY, idx)
         }
 
         const setCategoryTitle = (idx: number, event: InputEvent) => {
-            store.commit(RootMutation.SET_CATEGORY, {
+            store.commit(Mutation.SET_CATEGORY, {
                 idx,
                 category: {
                     ...categories.value[idx],
@@ -149,7 +149,7 @@ export default defineComponent({
         }
 
         const setCategoryRegex = (idx: number, event: InputEvent) => {
-            store.commit(RootMutation.SET_CATEGORY, {
+            store.commit(Mutation.SET_CATEGORY, {
                 idx,
                 category: {
                     ...categories.value[idx],
@@ -160,7 +160,7 @@ export default defineComponent({
 
         const setCategoryPriority = (idx: number, event: InputEvent) => {
             const priority = parseInt((event.target as HTMLInputElement).value)
-            store.commit(RootMutation.SET_CATEGORY, {
+            store.commit(Mutation.SET_CATEGORY, {
                 idx,
                 category: {
                     ...categories.value[idx],
@@ -192,7 +192,7 @@ export default defineComponent({
                 return
             }
 
-            await store.dispatch(RootAction.SAVE)
+            await store.dispatch(Action.SAVE)
             messages.value.push({
                 label: 'Saved',
                 type: 'success',
@@ -200,7 +200,7 @@ export default defineComponent({
         }
 
         const onReset = async() => {
-            await store.dispatch(RootAction.RESET)
+            await store.dispatch(Action.RESET)
             messages.value.push({
                 label: 'Successfully resetted everything to defaults',
                 type: 'success',
