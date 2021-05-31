@@ -34,11 +34,18 @@ export class GitHubHomepage {
             return
         }
 
-        const $root = $('#repos-container')
-        const $showMoreBtn = $root.find('> form.js-more-repos-form > button')
+        let $showMoreBtn: JQuery | undefined
+
+        console.info(DEFINE.NAME, 'Searching for $showMoreBtn')
+        await waitDelayedPredicate(() => {
+            $showMoreBtn = $('#repos-container > form.js-more-repos-form > button')
+            return $showMoreBtn !== undefined
+        })
+
         $showMoreBtn?.trigger('click')
 
         // Wait until the "Show more" button is no longer visible
+        console.info(DEFINE.NAME, 'Waiting for $showMoreBtn to be hidden')
         await waitDelayedPredicate(() => {
             return $showMoreBtn?.[0]?.offsetParent === null
         })
