@@ -47,7 +47,7 @@ export class GitHubHomepage {
         // Wait until the "Show more" button is no longer visible
         console.info(DEFINE.NAME, 'Waiting for $showMoreBtn to be hidden')
         await waitDelayedPredicate(() => {
-            return $showMoreBtn?.[0]?.offsetParent === null
+            return $showMoreBtn?.[0]?.offsetParent === null || $showMoreBtn?.is(':visible') === false
         })
 
         this.hasOpened = true
