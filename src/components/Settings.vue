@@ -8,7 +8,7 @@
             {{ message.label }}
         </div>
 
-        <h3>Categories</h3>
+        <h2>Categories</h2>
         <table>
             <thead>
                 <tr>
@@ -27,7 +27,7 @@
                 >
                     <td>
                         <a
-                            class="bubble"
+                            class="icon-btn bubble"
                             title="Bubble category to top"
                             @click="bubbleCategory(idx)"
                         >
@@ -60,7 +60,7 @@
                     </td>
                     <td>
                         <a
-                            class="delete"
+                            class="icon-btn delete"
                             title="Delete category"
                             @click="deleteCategory(idx)"
                         >
@@ -82,20 +82,20 @@
     <div class="group actions">
         <a
             class="btn positive"
-            @click="onSave"
+            @click="save"
         >
             Save
         </a>
         <a
             class="btn"
-            @click="onReset"
+            @click="reset"
         >
             Reset to Defaults
         </a>
         <div class="hspace" />
         <a
             class="btn"
-            @click="onClose"
+            @click="$emit('close')"
         >
             Close
         </a>
@@ -104,7 +104,7 @@
 
 <script lang="ts">
 import { Action, Mutation, useTypedStore } from '@/store'
-import { computed, defineComponent, onMounted, ref } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 
 interface Message {
     label: string
@@ -116,14 +116,8 @@ export default defineComponent({
         'close',
     ],
 
-    setup(props, { emit }) {
+    setup() {
         const store = useTypedStore()
-        const messages = ref<Array<Message>>([])
-
-        onMounted(async() => {
-            await store.dispatch(Action.LOAD)
-        })
-
         const categories = computed(() => store.state.categories)
 
         const addCategory = () => {
@@ -169,7 +163,8 @@ export default defineComponent({
             })
         }
 
-        const onSave = async() => {
+        const messages = ref<Array<Message>>([])
+        const save = async() => {
             messages.value = []
 
             for (const category of categories.value) {
@@ -199,16 +194,12 @@ export default defineComponent({
             })
         }
 
-        const onReset = async() => {
+        const reset = async() => {
             await store.dispatch(Action.RESET)
             messages.value.push({
                 label: 'Successfully resetted everything to defaults',
                 type: 'success',
             })
-        }
-
-        const onClose = () => {
-            emit('close')
         }
 
         return {
@@ -222,9 +213,8 @@ export default defineComponent({
             setCategoryRegex,
             setCategoryPriority,
 
-            onSave,
-            onReset,
-            onClose,
+            save,
+            reset,
         }
     },
 })
@@ -271,6 +261,13 @@ function validateRegex(regexp: string): Message | null {
 </script>
 
 <style lang="scss" scoped>
+h2{
+    @extend .margins;
+
+    font-size: 21px;
+    font-weight: bold;
+}
+
 .message{
     @extend .margins;
 
@@ -296,15 +293,6 @@ function validateRegex(regexp: string): Message | null {
     }
 }
 
-.actions{
-    display: flex;
-    gap: math.div($padding, 2);
-
-    .hspace{
-        flex: 1;
-    }
-}
-
 input{
     border: $border;
     border-radius: $border-radius;
@@ -315,19 +303,18 @@ input{
     }
 }
 
-a.bubble,
-a.delete{
-    @extend .icon-btn;
-
+a.icon-btn{
     background-size: cover;
     width: math.div($btn-size, 2);
     height: math.div($btn-size, 2);
-}
-a.bubble{
-    background-image: url('@/assets/img/bubble.png');
-}
-a.delete{
-    background-image: url('@/assets/img/delete.png');
+
+    &.bubble{
+        background-image: url('@/assets/img/bubble.png');
+    }
+
+    &.delete{
+        background-image: url('@/assets/img/delete.png');
+    }
 }
 
 table{
@@ -362,6 +349,39 @@ table{
             td{
                 padding-bottom: 0;
             }
+        }
+    }
+}
+
+.actions{
+    display: flex;
+    gap: math.div($padding, 2);
+
+    .hspace{
+        flex: 1;
+    }
+}
+
+a.btn{
+    background-color: white;
+    border: $border;
+    border-radius: $border-radius;
+    cursor: pointer;
+    display: inline-block;
+    padding: math.div($padding, 4) math.div($padding, 2);
+    text-decoration: none;
+
+    &:hover{
+        background-color: #eee;
+    }
+
+    &.positive{
+        background-color: green;
+        border-color: darkgreen;
+        color: white;
+
+        &:hover{
+            background-color: darkgreen;
         }
     }
 }

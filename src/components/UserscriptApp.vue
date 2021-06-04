@@ -1,17 +1,13 @@
 <template>
-    <div class="userscript-app">
+    <div class="userscript-github-repository-categories">
         <div v-if="isOpen" class="dialog-wrapper">
             <div class="dialog">
-                <hgroup>
-                    <h1>
-                        {{ title }}
-                    </h1>
-                    <h2>
-                        <a :href="projectUrl" class="url">
-                            {{ projectUrl }}
-                        </a>
-                    </h2>
-                </hgroup>
+                <h1>
+                    {{ title }}
+                </h1>
+                <a :href="projectUrl" class="url">
+                    {{ projectUrl }}
+                </a>
 
                 <Settings
                     @close="isOpen = false"
@@ -31,7 +27,7 @@
 
 <script lang="ts">
 import { GitHubHomepage } from '@/GitHubHomepage'
-import { Action, useTypedStore } from '@/store'
+import { useTypedStore } from '@/store'
 import { ref, defineComponent, computed, watch, onMounted } from 'vue'
 import Settings from './Settings.vue'
 
@@ -49,10 +45,7 @@ export default defineComponent({
             await githubHomepage.run(store.state.categories)
         }
 
-        onMounted(async() => {
-            await store.dispatch(Action.LOAD)
-            await render()
-        })
+        onMounted(render)
         watch(categories, render, {
             deep: true,
         })
@@ -67,7 +60,7 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
-.userscript-app{
+.userscript-github-repository-categories{
     *{
         background: none;
         outline: none;
@@ -81,52 +74,16 @@ export default defineComponent({
         line-height: 1.5;
     }
 
-    strong{
-        font-weight: bold;
-    }
-
-    a{
-        color: blue;
-        text-decoration: none;
-
-        &:hover{
-            text-decoration: underline;
-        }
-    }
-
-    a.btn{
-        background-color: white;
-        border: $border;
-        border-radius: $border-radius;
-        cursor: pointer;
-        display: inline-block;
-        padding: math.div($padding, 4) math.div($padding, 2);
-        text-decoration: none;
-
-        &:hover{
-            background-color: #eee;
-        }
-
-        &.positive{
-            background-color: green;
-            border-color: darkgreen;
-            color: white;
-
-            &:hover{
-                background-color: darkgreen;
-            }
-        }
-    }
-
     a.settings-btn{
         @extend .icon-btn;
 
+        position: fixed;
+        bottom: $padding;
+        right: $padding;
+        z-index: 9999;
+
         background-image: url('@/assets/img/settings.png');
         box-shadow: rgba(11, 11, 11, 0.1) 0 2px 8px;
-
-        position: fixed;
-        bottom: $padding; right: $padding;
-        z-index: 9999;
 
         &:hover{
             box-shadow: rgba(11, 11, 11, 0.4) 0 0px 8px;
@@ -151,20 +108,21 @@ export default defineComponent({
             transform: translateY(-50%) translateX(-50%);
             min-width: $min-dialog-width;
 
-            hgroup{
-                margin-bottom: $padding;
-            }
-
             h1{
                 font-size: 24px;
                 font-weight: bold;
             }
 
-            h3 {
-                @extend .margins;
+            a.url{
+                display: block;
+                margin-bottom: $padding;
 
-                font-size: 21px;
-                font-weight: bold;
+                color: blue;
+                text-decoration: none;
+
+                &:hover{
+                    text-decoration: underline;
+                }
             }
         }
     }
