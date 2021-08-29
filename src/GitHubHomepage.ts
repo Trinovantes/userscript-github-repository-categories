@@ -108,7 +108,9 @@ export class GitHubHomepage {
         }
 
         const $ul = $('<ul>')
-        for (const repo of bucket.repos) {
+        const repos = bucket.repos.sort((repoA, repoB) => repoA.name.localeCompare(repoB.name))
+
+        for (const repo of repos) {
             const li = repo.liNode
 
             // Remove 'username/' prefix from our own repos
