@@ -68,8 +68,18 @@ export class GitHubHomepage {
         // Categorize repos into buckets
         const $repoRows = $root.find('> ul > li')
         for (const repoRow of $repoRows) {
-            const ownerName = $(repoRow).find('a > span:nth-of-type(1)').text()
-            const repoName = $(repoRow).find('a > span:nth-of-type(2)').text()
+            const url = $(repoRow).find('a[href^="/"]').attr('href')
+            if (!url) {
+                continue
+            }
+
+            const matches = /^\/([\w-]+)\/([\w-]+$)/.exec(url)
+            if (!matches) {
+                continue
+            }
+
+            const ownerName = matches[1]
+            const repoName = matches[2]
 
             if (ownerName === this.username) {
                 for (const bucket of priorityBuckets) {
@@ -115,14 +125,13 @@ export class GitHubHomepage {
 
             // Remove 'username/' prefix from our own repos
             if (repo.owner === this.username) {
-                const $ownerLabel = $(li).find('a > span:nth-of-type(1)')
-                $ownerLabel.hide()
+                const $slash = $(li).find('a > span')
+                $slash.hide()
 
-                const $a = $(li).find('a')
-                for (const node of $a[0].childNodes) {
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        node.remove()
-                    }
+                const $a = $(li).find('a.markdown-title')
+                const $ownerName = $a[0].childNodes[0]
+                if ($ownerName.textContent?.trim() === this.username) {
+                    $ownerName.remove()
                 }
             }
 
