@@ -25,6 +25,11 @@ export class GitHubHomepage {
     }
 
     async run(categories: Array<Category>): Promise<void> {
+        if (!this.username) {
+            console.warn(DEFINE.NAME, 'Skipping GitHubHomepage::run() because user is logged out')
+            return
+        }
+
         await this.openRepoList()
         this.organizeRepos(categories)
     }
