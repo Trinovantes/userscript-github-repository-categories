@@ -9,7 +9,7 @@
                     {{ projectUrl }}
                 </a>
 
-                <Settings
+                <UserscriptAppSettings
                     @close="isOpen = false"
                 />
             </div>
@@ -29,11 +29,11 @@
 import { GitHubHomepage } from '@/GitHubHomepage'
 import { useTypedStore } from '@/store'
 import { ref, defineComponent, computed, watch, onMounted } from 'vue'
-import Settings from './Settings.vue'
+import UserscriptAppSettings from './UserscriptAppSettings.vue'
 
 export default defineComponent({
     components: {
-        Settings,
+        UserscriptAppSettings,
     },
 
     setup() {
