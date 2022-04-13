@@ -1,5 +1,6 @@
 import { Category } from '@/store'
-import { waitDelayedPredicate } from '@/utils'
+import { sleep, waitDelayedPredicate } from '@/utils'
+import { UI_WAIT_TIME } from './Constants'
 
 interface Bucket {
     title: string
@@ -47,6 +48,8 @@ export class GitHubHomepage {
             return $showMoreBtn !== undefined
         })
 
+        // Sleep a bit in case there is a race condition between btn rendering and its event handlers from GitHub being registered
+        await sleep(UI_WAIT_TIME)
         $showMoreBtn?.trigger('click')
 
         // Wait until the "Show more" button is no longer visible
