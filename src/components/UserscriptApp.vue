@@ -1,30 +1,3 @@
-<template>
-    <div class="userscript-github-repository-categories">
-        <div v-if="isOpen" class="dialog-wrapper">
-            <div class="dialog">
-                <h1>
-                    {{ title }}
-                </h1>
-                <a :href="projectUrl" class="url">
-                    {{ projectUrl }}
-                </a>
-
-                <UserscriptAppSettings
-                    @close="isOpen = false"
-                />
-            </div>
-        </div>
-
-        <a
-            class="settings-btn"
-            :title="title"
-            @click="isOpen = true"
-        >
-            Settings
-        </a>
-    </div>
-</template>
-
 <script lang="ts">
 import { GitHubHomepage } from '@/GitHubHomepage'
 import { useTypedStore } from '@/store'
@@ -58,6 +31,33 @@ export default defineComponent({
     },
 })
 </script>
+
+<template>
+    <div class="userscript-github-repository-categories">
+        <div v-if="isOpen" class="dialog-wrapper">
+            <div class="dialog">
+                <h1>
+                    {{ title }}
+                </h1>
+                <a :href="projectUrl" class="url">
+                    {{ projectUrl }}
+                </a>
+
+                <UserscriptAppSettings
+                    @close="isOpen = false"
+                />
+            </div>
+        </div>
+
+        <a
+            class="settings-btn"
+            :title="title"
+            @click="isOpen = true"
+        >
+            Settings
+        </a>
+    </div>
+</template>
 
 <style lang="scss">
 .userscript-github-repository-categories{
