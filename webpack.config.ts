@@ -35,9 +35,7 @@ const config: webpack.Configuration = {
     mode: isDev
         ? 'development'
         : 'production',
-    devtool: isDev
-        ? 'inline-source-map'
-        : false,
+    devtool: false,
 
     entry: path.resolve(srcDir, 'main.ts'),
     output: {
@@ -110,6 +108,8 @@ const config: webpack.Configuration = {
             'DEFINE.REPO': JSON.stringify(packageJson.repository),
         }),
         new VueLoaderPlugin(),
+            inject: false,
+        }),
         new WebpackUserscript({
             headers: {
                 name: packageJson.productName,
