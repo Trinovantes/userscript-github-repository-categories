@@ -1,7 +1,7 @@
 <script lang="ts">
 import { GitHubHomepage } from '@/services/github/GitHubHomepage'
-import { useTypedStore } from '@/store'
-import { ref, defineComponent, computed, watch, onMounted } from 'vue'
+import { useStore } from '@/store'
+import { ref, defineComponent, computed, watch } from 'vue'
 import UserscriptAppSettings from './UserscriptAppSettings.vue'
 
 export default defineComponent({
@@ -10,17 +10,15 @@ export default defineComponent({
     },
 
     setup() {
-        const store = useTypedStore()
-        const categories = computed(() => store.state.categories)
+        const store = useStore()
+        const categories = computed(() => store.categories)
         const githubHomepage = new GitHubHomepage()
 
-        const render = async() => {
-            await githubHomepage.run(store.state.categories)
-        }
-
-        onMounted(render)
-        watch(categories, render, {
+        watch(categories, async() => {
+            await githubHomepage.run(store.categories)
+        }, {
             deep: true,
+            immediate: true,
         })
 
         return {

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Action, Mutation, useTypedStore } from '@/store'
+import { useStore } from '@/store'
 import { computed, defineComponent, ref } from 'vue'
 
 interface Message {
@@ -13,49 +13,36 @@ export default defineComponent({
     ],
 
     setup() {
-        const store = useTypedStore()
-        const categories = computed(() => store.state.categories)
+        const store = useStore()
+        const categories = computed(() => store.categories)
 
         const addCategory = () => {
-            store.commit(Mutation.ADD_CATEGORY)
+            store.addCategory()
         }
 
         const deleteCategory = (idx: number) => {
-            store.commit(Mutation.DELETE_CATEGORY, idx)
+            store.deleteCategory(idx)
         }
 
         const bubbleCategory = (idx: number) => {
-            store.commit(Mutation.BUBBLE_CATEGORY, idx)
+            store.bubbleCategory(idx)
         }
 
-        const setCategoryTitle = (idx: number, event: InputEvent) => {
-            store.commit(Mutation.SET_CATEGORY, {
-                idx,
-                category: {
-                    ...categories.value[idx],
-                    title: (event.target as HTMLInputElement).value,
-                },
+        const setCategoryTitle = (idx: number, event: Event) => {
+            store.setCategory(idx, {
+                title: (event.target as HTMLInputElement).value,
             })
         }
 
-        const setCategoryRegex = (idx: number, event: InputEvent) => {
-            store.commit(Mutation.SET_CATEGORY, {
-                idx,
-                category: {
-                    ...categories.value[idx],
-                    regexp: (event.target as HTMLInputElement).value,
-                },
+        const setCategoryRegex = (idx: number, event: Event) => {
+            store.setCategory(idx, {
+                regexp: (event.target as HTMLInputElement).value,
             })
         }
 
-        const setCategoryPriority = (idx: number, event: InputEvent) => {
-            const priority = parseInt((event.target as HTMLInputElement).value)
-            store.commit(Mutation.SET_CATEGORY, {
-                idx,
-                category: {
-                    ...categories.value[idx],
-                    priority,
-                },
+        const setCategoryPriority = (idx: number, event: Event) => {
+            store.setCategory(idx, {
+                priority: parseInt((event.target as HTMLInputElement).value),
             })
         }
 
@@ -83,7 +70,7 @@ export default defineComponent({
                 return
             }
 
-            await store.dispatch(Action.SAVE)
+            await store.save()
             messages.value.push({
                 label: 'Saved',
                 type: 'success',
@@ -91,7 +78,9 @@ export default defineComponent({
         }
 
         const reset = async() => {
-            await store.dispatch(Action.RESET)
+            store.$reset()
+
+            await store.save()
             messages.value.push({
                 label: 'Successfully resetted everything to defaults',
                 type: 'success',
@@ -179,7 +168,7 @@ function validateRegex(regexp: string): Message | null {
             </thead>
             <tbody>
                 <tr
-                    v-for="[idx, category] of Object.entries(categories)"
+                    v-for="(category, idx) in categories"
                     :key="idx"
                     class="category"
                 >

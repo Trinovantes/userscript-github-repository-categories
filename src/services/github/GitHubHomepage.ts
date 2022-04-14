@@ -28,6 +28,7 @@ export class GitHubHomepage {
 
     private async openRepoList(): Promise<void> {
         if (this.hasOpened) {
+            console.warn(`Trying to call GitHubHomePage::openRepoList when hasOpened=${this.hasOpened}`)
             return
         }
 
@@ -53,6 +54,11 @@ export class GitHubHomepage {
     }
 
     private organizeRepos(categories: Array<Category>): void {
+        if (!this.hasOpened) {
+            console.warn(`Trying to call GitHubHomePage::organizeRepos when hasOpened=${this.hasOpened}`)
+            return
+        }
+
         const buckets = initBuckets(categories)
         const priorityBuckets = [...buckets].sort((b1, b2) => b2.priority - b1.priority)
         const externalBucket: Bucket = {
