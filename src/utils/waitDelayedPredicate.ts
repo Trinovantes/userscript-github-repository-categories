@@ -1,10 +1,5 @@
 import { MAX_UI_WAIT_ATTEMPTS, UI_WAIT_TIME } from '@/Constants'
-
-export async function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms)
-    })
-}
+import { sleep } from './sleep'
 
 export async function waitDelayedPredicate(pred: () => boolean): Promise<void> {
     let attempts = 0
