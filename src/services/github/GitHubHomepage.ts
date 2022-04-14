@@ -1,17 +1,8 @@
+import { UI_WAIT_TIME } from '@/Constants'
 import { Category } from '@/store'
-import { sleep, waitDelayedPredicate } from '@/utils'
-import { UI_WAIT_TIME } from './Constants'
-
-interface Bucket {
-    title: string
-    regexp: RegExp
-    priority: number
-    repos: Array<{
-        owner: string
-        name: string
-        liNode: HTMLElement
-    }>
-}
+import { sleep } from '@/utils/sleep'
+import { waitDelayedPredicate } from '@/utils/waitDelayedPredicate'
+import { Bucket, initBuckets } from './Bucket'
 
 export class GitHubHomepage {
     readonly username: string
@@ -62,8 +53,8 @@ export class GitHubHomepage {
     }
 
     private organizeRepos(categories: Array<Category>): void {
-        const buckets: Array<Bucket> = initBuckets(categories)
-        const priorityBuckets: Array<Bucket> = [...buckets].sort((b1, b2) => b2.priority - b1.priority)
+        const buckets = initBuckets(categories)
+        const priorityBuckets = [...buckets].sort((b1, b2) => b2.priority - b1.priority)
         const externalBucket: Bucket = {
             title: 'External',
             regexp: /.*/,
@@ -149,24 +140,4 @@ export class GitHubHomepage {
         $root.append(`<h3>${bucket.title || 'Untitled Category'}</h3>`)
         $root.append($ul)
     }
-}
-
-function initBuckets(categories: Array<Category>): Array<Bucket> {
-    const buckets = categories.map((category) => {
-        return {
-            title: category.title,
-            regexp: new RegExp(category.regexp),
-            priority: category.priority,
-            repos: [],
-        }
-    })
-
-    buckets.push({
-        title: 'Uncategorized',
-        regexp: /.*/,
-        priority: 0,
-        repos: [],
-    })
-
-    return buckets
 }

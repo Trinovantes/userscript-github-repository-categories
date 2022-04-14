@@ -1,5 +1,5 @@
 <script lang="ts">
-import { GitHubHomepage } from '@/GitHubHomepage'
+import { GitHubHomepage } from '@/services/github/GitHubHomepage'
 import { useTypedStore } from '@/store'
 import { ref, defineComponent, computed, watch, onMounted } from 'vue'
 import UserscriptAppSettings from './UserscriptAppSettings.vue'
