@@ -26,7 +26,6 @@ export class GitHubHomepage {
 
     private async openRepoList(): Promise<void> {
         if (this.hasOpened) {
-            console.warn(`Trying to call GitHubHomePage::openRepoList when hasOpened=${this.hasOpened}`)
             return
         }
 
