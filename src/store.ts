@@ -96,13 +96,6 @@ export const useStore = defineStore('Store', {
             this.categories.splice(idx, 1)
         },
 
-        setCategory(idx: number, category: Partial<Category>) {
-            this.categories[idx] = {
-                ...this.categories[idx],
-                ...category,
-            }
-        },
-
         bubbleCategory(idx: number) {
             const target = this.categories[idx]
 

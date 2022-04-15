@@ -28,24 +28,6 @@ export default defineComponent({
             store.bubbleCategory(idx)
         }
 
-        const setCategoryTitle = (idx: number, event: Event) => {
-            store.setCategory(idx, {
-                title: (event.target as HTMLInputElement).value,
-            })
-        }
-
-        const setCategoryRegex = (idx: number, event: Event) => {
-            store.setCategory(idx, {
-                regexp: (event.target as HTMLInputElement).value,
-            })
-        }
-
-        const setCategoryPriority = (idx: number, event: Event) => {
-            store.setCategory(idx, {
-                priority: parseInt((event.target as HTMLInputElement).value),
-            })
-        }
-
         const messages = ref<Array<Message>>([])
         const save = async() => {
             messages.value = []
@@ -96,9 +78,6 @@ export default defineComponent({
             addCategory,
             bubbleCategory,
             deleteCategory,
-            setCategoryTitle,
-            setCategoryRegex,
-            setCategoryPriority,
 
             save,
             reset,
@@ -195,26 +174,23 @@ function validateRegex(regexp: string): Message | null {
                         </td>
                         <td>
                             <input
+                                v-model="category.title"
                                 type="text"
-                                :value="category.title"
-                                @input="(val) => setCategoryTitle(idx, val)"
                             >
                         </td>
                         <td>
                             <input
+                                v-model="category.regexp"
                                 type="text"
                                 spellcheck="false"
-                                :value="category.regexp"
-                                @input="(val) => setCategoryRegex(idx, val)"
                             >
                         </td>
                         <td>
                             <input
+                                v-model.number="category.priority"
                                 type="number"
                                 title="Higher priority RegExp will be checked first"
                                 placeholder="Priority"
-                                :value="category.priority"
-                                @input="(val) => setCategoryPriority(idx, val)"
                             >
                         </td>
                         <td>
