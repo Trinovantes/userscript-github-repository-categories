@@ -4,7 +4,7 @@
     "description": "Categorize repositories on the GitHub homepage",
     "author": "Stephen",
     "license": "AGPL-3.0-only",
-    "version": "2.1.8",
+    "version": "2.1.9",
     "repository": {
         "type": "git",
         "url": "https://github.com/Trinovantes/userscript-github-repository-categories"
