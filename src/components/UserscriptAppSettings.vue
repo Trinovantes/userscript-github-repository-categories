@@ -90,7 +90,7 @@ export default defineComponent({
             <h1>
                 {{ title }}
             </h1>
-            <a :href="projectUrl" class="url">
+            <a :href="projectUrl" class="project-url">
                 {{ projectUrl }}
             </a>
         </div>
