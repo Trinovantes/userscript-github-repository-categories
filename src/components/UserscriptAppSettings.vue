@@ -1,11 +1,9 @@
 <script lang="ts">
 import { useStore } from '@/store'
+import { validateNumber } from '@/utils/validateNumber'
+import { validateRegex } from '@/utils/validateRegex'
+import { Message } from 'postcss'
 import { computed, defineComponent, ref } from 'vue'
-
-interface Message {
-    label: string
-    type: string
-}
 
 export default defineComponent({
     emits: [
@@ -84,46 +82,6 @@ export default defineComponent({
         }
     },
 })
-
-function validateNumber(n: number, label: string, min?: number, max?: number): Array<Message> {
-    const errors: Array<Message> = []
-
-    if (!Number.isInteger(n)) {
-        errors.push({
-            label: `${label} "${n}" is not an integer`,
-            type: 'error',
-        })
-    }
-
-    if (min !== undefined && n < min) {
-        errors.push({
-            label: `${label} "${n}" must be greater than ${min}`,
-            type: 'error',
-        })
-    }
-
-    if (max !== undefined && n > max) {
-        errors.push({
-            label: `${label} "${n}" must be less than ${max}`,
-            type: 'error',
-        })
-    }
-
-    return errors
-}
-
-function validateRegex(regexp: string): Message | null {
-    try {
-        RegExp(regexp)
-        return null
-    } catch (err) {
-        const error = err as Error
-        return {
-            label: error.message,
-            type: 'error',
-        }
-    }
-}
 </script>
 
 <template>
