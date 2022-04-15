@@ -25,7 +25,6 @@ export default defineComponent({
 
         return {
             title: `${DEFINE.PRODUCT_NAME} ${DEFINE.VERSION}`,
-            projectUrl: DEFINE.REPO.url,
             isOpen: ref(false),
             username,
         }
