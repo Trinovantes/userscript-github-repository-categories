@@ -88,6 +88,8 @@ export default defineComponent({
         }
 
         return {
+            title: `${DEFINE.PRODUCT_NAME} ${DEFINE.VERSION}`,
+            projectUrl: DEFINE.REPO.url,
             messages,
 
             categories,
@@ -146,120 +148,214 @@ function validateRegex(regexp: string): Message | null {
 </script>
 
 <template>
-    <div class="group">
-        <div
-            v-for="[idx, message] of Object.entries(messages)"
-            :key="idx"
-            :class="`message ${message.type}`"
-        >
-            {{ message.label }}
+    <div class="settings">
+        <div class="group">
+            <h1>
+                {{ title }}
+            </h1>
+            <a :href="projectUrl" class="url">
+                {{ projectUrl }}
+            </a>
         </div>
 
-        <h2>Categories</h2>
-        <table>
-            <thead>
-                <tr>
-                    <td />
-                    <td>Title</td>
-                    <td>RegExp</td>
-                    <td>Priority</td>
-                    <td />
-                </tr>
-            </thead>
-            <tbody>
-                <tr
-                    v-for="(category, idx) in categories"
-                    :key="idx"
-                    class="category"
+        <div class="group">
+            <div
+                v-for="[idx, message] of Object.entries(messages)"
+                :key="idx"
+                :class="`message ${message.type}`"
+            >
+                {{ message.label }}
+            </div>
+
+            <h2>Categories</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <td />
+                        <td>Title</td>
+                        <td>RegExp</td>
+                        <td>Priority</td>
+                        <td />
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="(category, idx) in categories"
+                        :key="idx"
+                        class="category"
+                    >
+                        <td>
+                            <a
+                                class="icon-btn bubble"
+                                title="Bubble category to top"
+                                @click="bubbleCategory(idx)"
+                            >
+                                Bubble
+                            </a>
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                :value="category.title"
+                                @input="(val) => setCategoryTitle(idx, val)"
+                            >
+                        </td>
+                        <td>
+                            <input
+                                type="text"
+                                spellcheck="false"
+                                :value="category.regexp"
+                                @input="(val) => setCategoryRegex(idx, val)"
+                            >
+                        </td>
+                        <td>
+                            <input
+                                type="number"
+                                title="Higher priority RegExp will be checked first"
+                                placeholder="Priority"
+                                :value="category.priority"
+                                @input="(val) => setCategoryPriority(idx, val)"
+                            >
+                        </td>
+                        <td>
+                            <a
+                                class="icon-btn delete"
+                                title="Delete category"
+                                @click="deleteCategory(idx)"
+                            >
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div>
+                <a
+                    class="btn"
+                    @click="addCategory"
                 >
-                    <td>
-                        <a
-                            class="icon-btn bubble"
-                            title="Bubble category to top"
-                            @click="bubbleCategory(idx)"
-                        >
-                            Bubble
-                        </a>
-                    </td>
-                    <td>
-                        <input
-                            type="text"
-                            :value="category.title"
-                            @input="(val) => setCategoryTitle(idx, val)"
-                        >
-                    </td>
-                    <td>
-                        <input
-                            type="text"
-                            spellcheck="false"
-                            :value="category.regexp"
-                            @input="(val) => setCategoryRegex(idx, val)"
-                        >
-                    </td>
-                    <td>
-                        <input
-                            type="number"
-                            title="Higher priority RegExp will be checked first"
-                            placeholder="Priority"
-                            :value="category.priority"
-                            @input="(val) => setCategoryPriority(idx, val)"
-                        >
-                    </td>
-                    <td>
-                        <a
-                            class="icon-btn delete"
-                            title="Delete category"
-                            @click="deleteCategory(idx)"
-                        >
-                            Delete
-                        </a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+                    Add Category
+                </a>
+            </div>
+        </div>
 
-        <a
-            class="btn"
-            @click="addCategory"
-        >
-            Add Category
-        </a>
-    </div>
-
-    <div class="group actions">
-        <a
-            class="btn positive"
-            @click="save"
-        >
-            Save
-        </a>
-        <a
-            class="btn"
-            @click="reset"
-        >
-            Reset to Defaults
-        </a>
-        <div class="hspace" />
-        <a
-            class="btn"
-            @click="$emit('close')"
-        >
-            Close
-        </a>
+        <div class="group actions">
+            <a
+                class="btn positive"
+                @click="save"
+            >
+                Save
+            </a>
+            <a
+                class="btn"
+                @click="reset"
+            >
+                Reset to Defaults
+            </a>
+            <div class="hspace" />
+            <a
+                class="btn"
+                @click="$emit('close')"
+            >
+                Close
+            </a>
+        </div>
     </div>
 </template>
 
 <style lang="scss" scoped>
-h2{
-    @extend .margins;
+.settings{
+    display: grid;
+    gap: $padding;
+}
 
+.group{
+    display: grid;
+    gap: math.div($padding, 2);
+
+    &:not(:first-child){
+        border-top: $border;
+        padding-top: $padding;
+    }
+
+    &.actions{
+        display: flex;
+        gap: math.div($padding, 2);
+
+        .hspace{
+            flex: 1;
+        }
+    }
+}
+
+h1{
+    font-size: 24px;
+    font-weight: bold;
+}
+
+h2{
     font-size: 21px;
     font-weight: bold;
 }
 
-.message{
-    @extend .margins;
+a.project-url{
+    display: block;
+    color: blue;
+    text-decoration: none;
 
+    &:hover{
+        text-decoration: underline;
+    }
+}
+
+label{
+    cursor: pointer;
+    font-weight: bold;
+
+    align-items: center;
+    display: grid;
+    gap: math.div($padding, 2);
+    grid-template-columns: 1fr 2fr;
+}
+
+input{
+    font-weight: normal;
+
+    border: $border;
+    border-radius: $border-radius;
+    padding: math.div($padding, 4);
+
+    &:focus{
+        border-color: black;
+    }
+}
+
+a.btn{
+    background-color: white;
+    border: $border;
+    border-radius: $border-radius;
+    cursor: pointer;
+    display: inline-block;
+    padding: math.div($padding, 4) math.div($padding, 2);
+    text-decoration: none;
+
+    &:hover{
+        background-color: #eee;
+    }
+
+    &.positive{
+        background-color: green;
+        border-color: darkgreen;
+        color: white;
+
+        &:hover{
+            background-color: darkgreen;
+        }
+    }
+}
+
+.message{
     padding: math.div($padding, 2) $padding;
 
     &.error{
@@ -270,25 +366,6 @@ h2{
     &.success{
         background: darkgreen;
         color: white;
-    }
-}
-
-.group{
-    border-top: $border;
-    padding: $padding 0;
-
-    &:last-child{
-        padding-bottom: 0;
-    }
-}
-
-input{
-    border: $border;
-    border-radius: $border-radius;
-    padding: math.div($padding, 4);
-
-    &:focus{
-        border-color: black;
     }
 }
 
@@ -307,8 +384,6 @@ a.icon-btn{
 }
 
 table{
-    @extend .margins;
-
     thead{
         td{
             font-weight: bold;
@@ -338,39 +413,6 @@ table{
             td{
                 padding-bottom: 0;
             }
-        }
-    }
-}
-
-.actions{
-    display: flex;
-    gap: math.div($padding, 2);
-
-    .hspace{
-        flex: 1;
-    }
-}
-
-a.btn{
-    background-color: white;
-    border: $border;
-    border-radius: $border-radius;
-    cursor: pointer;
-    display: inline-block;
-    padding: math.div($padding, 4) math.div($padding, 2);
-    text-decoration: none;
-
-    &:hover{
-        background-color: #eee;
-    }
-
-    &.positive{
-        background-color: green;
-        border-color: darkgreen;
-        color: white;
-
-        &:hover{
-            background-color: darkgreen;
         }
     }
 }
