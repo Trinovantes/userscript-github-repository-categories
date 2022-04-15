@@ -1,6 +1,4 @@
-import { UI_WAIT_TIME } from '@/Constants'
 import { Category } from '@/store'
-import { sleep } from '@/utils/sleep'
 import { waitDelayedPredicate } from '@/utils/waitDelayedPredicate'
 import { Bucket, initBuckets } from './Bucket'
 
@@ -37,11 +35,9 @@ export class GitHubHomepage {
         console.info(DEFINE.NAME, 'Searching for $showMoreBtn')
         await waitDelayedPredicate(() => {
             $showMoreBtn = $('#repos-container > form.js-more-repos-form > button')
-            return $showMoreBtn !== undefined
+            return $showMoreBtn.length > 0
         })
 
-        // Sleep a bit in case there is a race condition between btn rendering and its event handlers from GitHub being registered
-        await sleep(UI_WAIT_TIME)
         $showMoreBtn?.trigger('click')
 
         // Wait until the "Show more" button is no longer visible
