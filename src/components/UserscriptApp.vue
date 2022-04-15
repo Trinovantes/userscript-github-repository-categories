@@ -10,9 +10,11 @@ export default defineComponent({
     },
 
     setup() {
+        const username = $('.dashboard-sidebar summary > span.css-truncate').text().trim()
+        const githubHomepage = new GitHubHomepage(username)
+
         const store = useStore()
         const categories = computed(() => store.categories)
-        const githubHomepage = new GitHubHomepage()
 
         watch(categories, async() => {
             await githubHomepage.run(store.categories)
@@ -25,13 +27,17 @@ export default defineComponent({
             title: `${DEFINE.PRODUCT_NAME} ${DEFINE.VERSION}`,
             projectUrl: DEFINE.REPO.url,
             isOpen: ref(false),
+            username,
         }
     },
 })
 </script>
 
 <template>
-    <div class="userscript-github-repository-categories">
+    <div
+        v-if="username"
+        class="userscript-github-repository-categories"
+    >
         <div
             v-if="isOpen"
             class="dialog-wrapper"

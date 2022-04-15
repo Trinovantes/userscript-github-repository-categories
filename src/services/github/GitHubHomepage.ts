@@ -6,8 +6,8 @@ export class GitHubHomepage {
     readonly username: string
     hasOpened: boolean
 
-    constructor() {
-        this.username = $('.dashboard-sidebar summary > span.css-truncate').text().trim()
+    constructor(username: string) {
+        this.username = username
         this.hasOpened = false
 
         console.info(DEFINE.NAME, 'GitHubHomepage::GitHubHomepage()')
