@@ -37,6 +37,7 @@ export class GitHubHomepage {
             return $showMoreBtn.length > 0
         })
 
+        console.info($showMoreBtn)
         $showMoreBtn?.trigger('click')
 
         // Wait until the "Show more" button is no longer visible
