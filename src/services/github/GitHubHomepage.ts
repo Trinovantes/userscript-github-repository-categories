@@ -34,10 +34,10 @@ export class GitHubHomepage {
         console.info(DEFINE.NAME, 'Searching for $showMoreBtn')
         await waitDelayedPredicate(() => {
             $showMoreBtn = $('#repos-container > form.js-more-repos-form > button')
+            console.info($showMoreBtn)
             return $showMoreBtn.length === 2 // No idea why the homepage has 2 buttons
         })
 
-        console.info($showMoreBtn)
         $showMoreBtn?.trigger('click')
 
         // Wait until the "Show more" button is no longer visible
