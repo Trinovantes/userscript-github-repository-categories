@@ -1,4 +1,4 @@
-import { Category } from '@/store'
+import type { Category } from '@/store'
 import { waitDelayedPredicate } from '@/utils/waitDelayedPredicate'
 import { Bucket, initBuckets } from './Bucket'
 
