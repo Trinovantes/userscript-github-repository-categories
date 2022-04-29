@@ -1,9 +1,9 @@
 <script lang="ts">
+import { computed, defineComponent, ref } from 'vue'
 import { useStore } from '@/store'
 import { Message } from '@/utils/Message'
 import { validateNumber } from '@/utils/validateNumber'
 import { validateRegex } from '@/utils/validateRegex'
-import { computed, defineComponent, ref } from 'vue'
 
 export default defineComponent({
     emits: [

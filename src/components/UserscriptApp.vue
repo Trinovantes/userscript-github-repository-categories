@@ -1,7 +1,7 @@
 <script lang="ts">
+import { ref, defineComponent, computed, watch } from 'vue'
 import { GitHubHomepage } from '@/services/github/GitHubHomepage'
 import { useStore } from '@/store'
-import { ref, defineComponent, computed, watch } from 'vue'
 import UserscriptAppSettings from './UserscriptAppSettings.vue'
 
 export default defineComponent({
