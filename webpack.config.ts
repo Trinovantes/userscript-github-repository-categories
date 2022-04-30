@@ -119,7 +119,7 @@ const config: webpack.Configuration = {
                     ? '0.0.0'
                     : '[version]',
                 match: [
-                    '*://*.github.com/',
+                    'https://github.com/',
                 ],
                 grant: [
                     'GM.getValue',
