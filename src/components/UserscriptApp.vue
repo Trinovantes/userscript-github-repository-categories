@@ -1,5 +1,6 @@
 <script lang="ts">
 import { ref, defineComponent, computed, watch } from 'vue'
+import { TITLE } from '@/Constants'
 import { GitHubHomepage } from '@/services/github/GitHubHomepage'
 import { useStore } from '@/store'
 import UserscriptAppSettings from './UserscriptAppSettings.vue'
@@ -24,7 +25,7 @@ export default defineComponent({
         })
 
         return {
-            title: `${DEFINE.PRODUCT_NAME} ${DEFINE.VERSION}`,
+            TITLE,
             isOpen: ref(false),
             username,
         }
@@ -50,7 +51,7 @@ export default defineComponent({
 
         <a
             class="settings-btn"
-            :title="title"
+            :title="TITLE"
             @click="isOpen = true"
         >
             Settings
