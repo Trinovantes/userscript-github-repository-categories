@@ -1,89 +1,69 @@
-<script lang="ts">
-import { computed, defineComponent, ref } from 'vue'
+<script lang="ts" setup>
+import { computed, ref } from 'vue'
 import { TITLE } from '@/Constants'
 import { useStore } from '@/store'
 import type { Message } from '@/utils/Message'
 import { validateNumber } from '@/utils/validateNumber'
 import { validateRegex } from '@/utils/validateRegex'
 
-export default defineComponent({
-    emits: [
-        'close',
-    ],
+defineEmits(['close'])
 
-    setup() {
-        const store = useStore()
-        const categories = computed(() => store.categories)
+const projectUrl = DEFINE.REPO.url
 
-        const addCategory = () => {
-            store.addCategory()
+const store = useStore()
+const categories = computed(() => store.categories)
+
+const addCategory = () => {
+    store.addCategory()
+}
+
+const deleteCategory = (idx: number) => {
+    store.deleteCategory(idx)
+}
+
+const bubbleCategory = (idx: number) => {
+    store.bubbleCategory(idx)
+}
+
+const messages = ref<Array<Message>>([])
+const save = async() => {
+    messages.value = []
+
+    for (const category of categories.value) {
+        const regexError = validateRegex(category.regexp)
+        if (regexError) {
+            messages.value.push(regexError)
         }
 
-        const deleteCategory = (idx: number) => {
-            store.deleteCategory(idx)
+        const priorityErrors = validateNumber(category.priority, 'Priority')
+        if (priorityErrors.length > 0) {
+            messages.value = [
+                ...messages.value,
+                ...priorityErrors,
+            ]
         }
+    }
 
-        const bubbleCategory = (idx: number) => {
-            store.bubbleCategory(idx)
-        }
+    // Check if validators found any problems
+    if (messages.value.length > 0) {
+        return
+    }
 
-        const messages = ref<Array<Message>>([])
-        const save = async() => {
-            messages.value = []
+    await store.save()
+    messages.value.push({
+        label: 'Saved',
+        type: 'success',
+    })
+}
+const reset = async() => {
+    store.$reset()
 
-            for (const category of categories.value) {
-                const regexError = validateRegex(category.regexp)
-                if (regexError) {
-                    messages.value.push(regexError)
-                }
-
-                const priorityErrors = validateNumber(category.priority, 'Priority')
-                if (priorityErrors.length > 0) {
-                    messages.value = [
-                        ...messages.value,
-                        ...priorityErrors,
-                    ]
-                }
-            }
-
-            // Check if validators found any problems
-            if (messages.value.length > 0) {
-                return
-            }
-
-            await store.save()
-            messages.value.push({
-                label: 'Saved',
-                type: 'success',
-            })
-        }
-
-        const reset = async() => {
-            store.$reset()
-
-            await store.save()
-            messages.value.push({
-                label: 'Successfully resetted everything to defaults',
-                type: 'success',
-            })
-        }
-
-        return {
-            TITLE,
-            projectUrl: DEFINE.REPO.url,
-            messages,
-
-            categories,
-            addCategory,
-            bubbleCategory,
-            deleteCategory,
-
-            save,
-            reset,
-            store,
-        }
-    },
-})
+    await store.save()
+    messages.value.push({
+        label: 'Successfully resetted everything to defaults',
+        type: 'success',
+    })
+}
 </script>
 
 <template>

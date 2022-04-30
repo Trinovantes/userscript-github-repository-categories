@@ -1,36 +1,23 @@
-<script lang="ts">
-import { ref, defineComponent, computed, watch } from 'vue'
+<script lang="ts" setup>
+import { ref, computed, watch } from 'vue'
 import { TITLE } from '@/Constants'
 import { GitHubHomepage } from '@/services/github/GitHubHomepage'
 import { useStore } from '@/store'
 import UserscriptAppSettings from './UserscriptAppSettings.vue'
 
-export default defineComponent({
-    components: {
-        UserscriptAppSettings,
-    },
+const username = $('.dashboard-sidebar summary > span.css-truncate').text().trim()
+const githubHomepage = new GitHubHomepage(username)
 
-    setup() {
-        const username = $('.dashboard-sidebar summary > span.css-truncate').text().trim()
-        const githubHomepage = new GitHubHomepage(username)
-
-        const store = useStore()
-        const categories = computed(() => store.categories)
-
-        watch(categories, async() => {
-            await githubHomepage.run(store.categories)
-        }, {
-            deep: true,
-            immediate: true,
-        })
-
-        return {
-            TITLE,
-            isOpen: ref(false),
-            username,
-        }
-    },
+const store = useStore()
+const categories = computed(() => store.categories)
+watch(categories, async() => {
+    await githubHomepage.run(store.categories)
+}, {
+    deep: true,
+    immediate: true,
 })
+
+const isOpen = ref(false)
 </script>
 
 <template>
