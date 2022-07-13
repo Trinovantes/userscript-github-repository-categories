@@ -33,9 +33,8 @@ export class GitHubHomepage {
 
         console.info(DEFINE.NAME, 'Searching for $showMoreBtn')
         await waitDelayedPredicate(() => {
-            $showMoreBtn = $('#repos-container > form.js-more-repos-form > button')
-            console.info($showMoreBtn)
-            return $showMoreBtn.length === 2 // No idea why the homepage has 2 buttons
+            $showMoreBtn = $('.js-repos-container > .js-more-repos-form > button')
+            return $showMoreBtn.length === 2 // 1 btn for desktop, 1 btn for mobile
         })
 
         $showMoreBtn?.trigger('click')
@@ -43,7 +42,9 @@ export class GitHubHomepage {
         // Wait until the "Show more" button is no longer visible
         console.info(DEFINE.NAME, 'Waiting for $showMoreBtn to be hidden')
         await waitDelayedPredicate(() => {
-            return $showMoreBtn?.is(':visible') === false
+            const isVisible = $showMoreBtn?.is(':visible')
+            const isInDom = $showMoreBtn && document.body.contains($showMoreBtn[0]) && document.body.contains($showMoreBtn[1])
+            return !isVisible || !isInDom
         })
 
         this.hasOpened = true
@@ -64,10 +65,11 @@ export class GitHubHomepage {
             repos: [],
         }
 
-        const $root = $('#repos-container')
-
         // Categorize repos into buckets
+        const $root = $($('.js-repos-container .js-repos-container')?.[0])
         const $repoRows = $root.find('> ul > li')
+        console.info(DEFINE.NAME, `Found ${$repoRows.length} repos`)
+
         for (const repoRow of $repoRows) {
             const url = $(repoRow).find('a[href^="/"]').attr('href')
             if (!url) {
