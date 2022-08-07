@@ -46,8 +46,8 @@ const isOpen = ref(false)
     </div>
 </template>
 
-<style lang="scss">
-.userscript-github-repository-categories *{
+<style lang="scss" scoped>
+:global(.userscript-github-repository-categories *){
     background: none;
     outline: none;
     border: none;
@@ -61,9 +61,7 @@ const isOpen = ref(false)
     line-height: 1.5;
     vertical-align: baseline;
 }
-</style>
 
-<style lang="scss" scoped>
 a.settings-btn{
     @extend .icon-btn;
 
