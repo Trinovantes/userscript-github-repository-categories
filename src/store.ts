@@ -5,13 +5,13 @@ import { KEY_STATE } from '@/Constants'
 // State
 // ----------------------------------------------------------------------------
 
-export interface Category {
+export type Category = {
     title: string
     regexp: string
     priority: number
 }
 
-export interface State {
+export type State = {
     categories: Array<Category>
 }
 

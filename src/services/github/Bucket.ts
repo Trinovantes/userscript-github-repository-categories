@@ -1,6 +1,6 @@
 import type { Category } from '@/store'
 
-export interface Bucket {
+export type Bucket = {
     title: string
     regexp: RegExp
     priority: number
