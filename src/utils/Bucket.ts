@@ -1,4 +1,4 @@
-import type { Category } from '@/store'
+import { Category } from '@/store/useStore'
 
 export type Bucket = {
     title: string

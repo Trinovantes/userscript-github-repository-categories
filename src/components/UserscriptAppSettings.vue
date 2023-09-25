@@ -1,278 +1,175 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { TITLE } from '@/Constants'
-import { useStore } from '@/store'
-import type { Message } from '@/utils/Message'
+import { projectTitle, projectUrl } from '@/Constants'
+import { useStore } from '@/store/useStore'
+import { Message } from '@/utils/Message'
 import { validateNumber } from '@/utils/validateNumber'
 import { validateRegex } from '@/utils/validateRegex'
 
-defineEmits(['close'])
-
-const projectUrl = DEFINE.REPO.url
+const emit = defineEmits(['close'])
 
 const store = useStore()
 const categories = computed(() => store.categories)
-
-const addCategory = () => {
-    store.addCategory()
-}
-
-const deleteCategory = (idx: number) => {
-    store.deleteCategory(idx)
-}
-
-const bubbleCategory = (idx: number) => {
-    store.bubbleCategory(idx)
-}
-
-const messages = ref<Array<Message>>([])
+const errorMessages = ref<Array<Message>>([])
 const save = async() => {
-    messages.value = []
+    errorMessages.value = []
 
     for (const category of categories.value) {
         const regexError = validateRegex(category.regexp)
         if (regexError) {
-            messages.value.push(regexError)
+            errorMessages.value.push(regexError)
         }
 
         const priorityErrors = validateNumber(category.priority, 'Priority')
         if (priorityErrors.length > 0) {
-            messages.value = [
-                ...messages.value,
+            errorMessages.value = [
+                ...errorMessages.value,
                 ...priorityErrors,
             ]
         }
     }
 
     // Check if validators found any problems
-    if (messages.value.length > 0) {
+    if (errorMessages.value.length > 0) {
         return
     }
 
     await store.save()
-    messages.value.push({
-        label: 'Saved',
-        type: 'success',
-    })
+    emit('close')
 }
-const reset = async() => {
-    store.$reset()
 
+const cancel = async() => {
+    await store.load()
+    emit('close')
+}
+
+const resetToDefaults = async() => {
+    store.$reset()
     await store.save()
-    messages.value.push({
-        label: 'Successfully resetted everything to defaults',
-        type: 'success',
-    })
 }
 </script>
 
 <template>
-    <div class="settings">
-        <div class="group">
+    <article>
+        <div class="group header flex-vgap">
             <h1>
-                {{ TITLE }}
+                {{ projectTitle }}
             </h1>
             <a :href="projectUrl" class="project-url">
                 {{ projectUrl }}
             </a>
         </div>
 
-        <div class="group">
+        <div class="group categories flex-vgap">
             <div
-                v-for="[idx, message] of Object.entries(messages)"
+                v-for="[idx, message] of Object.entries(errorMessages)"
                 :key="idx"
                 :class="`message ${message.type}`"
             >
                 {{ message.label }}
             </div>
 
-            <h2>Categories</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <td />
-                        <td>Title</td>
-                        <td>RegExp</td>
-                        <td>Priority</td>
-                        <td />
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="(category, idx) in categories"
-                        :key="idx"
-                        class="category"
-                    >
-                        <td>
-                            <a
-                                class="icon-btn bubble"
-                                title="Bubble category to top"
-                                @click="bubbleCategory(idx)"
-                            >
-                                Bubble
-                            </a>
-                        </td>
-                        <td>
-                            <input
-                                v-model="category.title"
-                                type="text"
-                            >
-                        </td>
-                        <td>
-                            <input
-                                v-model="category.regexp"
-                                type="text"
-                                spellcheck="false"
-                            >
-                        </td>
-                        <td>
-                            <input
-                                v-model.number="category.priority"
-                                type="number"
-                                title="Higher priority RegExp will be checked first"
-                                placeholder="Priority"
-                            >
-                        </td>
-                        <td>
-                            <a
-                                class="icon-btn delete"
-                                title="Delete category"
-                                @click="deleteCategory(idx)"
-                            >
-                                Delete
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="category">
+                <span />
+                <span />
+                <strong>Title</strong>
+                <strong>RegExp</strong>
+                <strong>Priority</strong>
+                <strong />
+            </div>
+            <div
+                v-for="(category, idx) in categories"
+                :key="idx"
+                class="category"
+            >
+                <button
+                    class="icon-btn up"
+                    title="Move category up"
+                    @click="store.moveCategoryUp(idx)"
+                >
+                    Up
+                </button>
+                <button
+                    class="icon-btn down"
+                    title="Move category down"
+                    @click="store.moveCategoryDown(idx)"
+                >
+                    Down
+                </button>
+                <input
+                    v-model="category.title"
+                    type="text"
+                >
+                <input
+                    v-model="category.regexp"
+                    type="text"
+                    spellcheck="false"
+                >
+                <input
+                    v-model.number="category.priority"
+                    type="number"
+                    title="Higher priority RegExp will be checked first"
+                    placeholder="Priority"
+                >
+                <button
+                    class="icon-btn delete"
+                    title="Delete category"
+                    @click="store.deleteCategory(idx)"
+                >
+                    Delete
+                </button>
+            </div>
 
             <div>
-                <a
-                    class="btn"
-                    @click="addCategory"
+                <button
+                    @click="store.addCategory()"
                 >
                     Add Category
-                </a>
+                </button>
             </div>
         </div>
 
-        <div class="group actions">
-            <a
-                class="btn positive"
+        <div class="group actions flex-hgap">
+            <button
+                class="positive"
                 @click="save"
             >
                 Save
-            </a>
-            <a
-                class="btn"
-                @click="reset"
+            </button>
+            <button
+                @click="resetToDefaults"
             >
                 Reset to Defaults
-            </a>
-            <div class="hspace" />
-            <a
-                class="btn"
-                @click="store.load(); $emit('close')"
+            </button>
+
+            <div class="flex-1" />
+            <button
+                @click="cancel"
             >
-                Close
-            </a>
+                Cancel
+            </button>
         </div>
-    </div>
+    </article>
 </template>
 
 <style lang="scss" scoped>
-.settings{
+article{
     display: grid;
-    gap: $padding;
+    max-height: 80vh;
+    overflow-y: auto;
+    max-width: 600px;
+    width: 50vw;
 }
 
 .group{
-    display: grid;
-    gap: math.div($padding, 2);
+    padding: $padding;
 
     &:not(:first-child){
         border-top: $border;
-        padding-top: $padding;
     }
 
-    &.actions{
-        display: flex;
+    &.header{
         gap: math.div($padding, 2);
-
-        .hspace{
-            flex: 1;
-        }
-    }
-}
-
-h1{
-    font-size: 24px;
-    font-weight: bold;
-}
-
-h2{
-    font-size: 21px;
-    font-weight: bold;
-}
-
-a.project-url{
-    display: block;
-    color: blue;
-    text-decoration: none;
-
-    &:hover{
-        text-decoration: underline;
-    }
-}
-
-label{
-    cursor: pointer;
-    font-weight: bold;
-
-    align-items: center;
-    display: grid;
-    gap: math.div($padding, 2);
-    grid-template-columns: 1fr 2fr;
-    justify-items: left;
-}
-
-input{
-    font-weight: normal;
-
-    border: $border;
-    border-radius: $border-radius;
-    padding: math.div($padding, 4);
-
-    &:focus{
-        border-color: black;
-    }
-
-    &:not([type='checkbox']){
-        width: 100%;
-    }
-}
-
-a.btn{
-    background-color: white;
-    border: $border;
-    border-radius: $border-radius;
-    cursor: pointer;
-    display: inline-block;
-    padding: math.div($padding, 4) math.div($padding, 2);
-    text-decoration: none;
-
-    &:hover{
-        background-color: #eee;
-    }
-
-    &.positive{
-        background-color: green;
-        border-color: darkgreen;
-        color: white;
-
-        &:hover{
-            background-color: darkgreen;
-        }
     }
 }
 
@@ -290,50 +187,38 @@ a.btn{
     }
 }
 
-a.icon-btn{
-    background-size: cover;
-    width: math.div($btn-size, 2);
-    height: math.div($btn-size, 2);
+.categories{
+    $icon-size: math.div($btn-size, 1.5);
 
-    &.bubble{
-        background-image: url('@/assets/img/bubble.png');
+    gap: math.div($padding, 2);
+
+    button.icon-btn{
+        background-size: 75% 75%;
+        background-repeat: no-repeat;
+        background-position: center;
+        width: $icon-size;
+        height: $icon-size;
+        text-indent: -9999px;
+
+        &.up{
+            background-image: url('@/assets/img/up.png');
+        }
+        &.down{
+            background-image: url('@/assets/img/down.png');
+        }
+        &.delete{
+            background-image: url('@/assets/img/delete.png');
+        }
     }
 
-    &.delete{
-        background-image: url('@/assets/img/delete.png');
-    }
-}
+    .category{
+        display: grid;
+        gap: math.div($padding, 2);
+        grid-template-columns: $icon-size $icon-size 1fr 1fr 1fr $icon-size;
+        align-items: center;
 
-table{
-    thead{
-        td{
+        strong{
             font-weight: bold;
-            padding-top: math.div($padding, 4) !important;
-            padding-bottom: math.div($padding, 4) !important;
-        }
-    }
-
-    tr{
-        td{
-            padding: math.div($padding, 4);
-
-            &:first-child{
-                padding-left: 0;
-            }
-            &:last-child{
-                padding-right: 0;
-            }
-        }
-
-        &:first-child{
-            td{
-                padding-top: 0;
-            }
-        }
-        &:last-child{
-            td{
-                padding-bottom: 0;
-            }
         }
     }
 }

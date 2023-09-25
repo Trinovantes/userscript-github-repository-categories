@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { KEY_STATE } from '@/Constants'
+
+export const HYDRATION_KEY = 'KEY_STATE'
 
 // ----------------------------------------------------------------------------
 // State
@@ -43,11 +44,6 @@ function createDefaultState(): State {
                 regexp: '^issue-',
                 priority: 0,
             },
-            {
-                title: 'School',
-                regexp: '^[A-Z]+([\\d]+)-',
-                priority: 1,
-            },
         ],
     }
 
@@ -64,7 +60,7 @@ export const useStore = defineStore('Store', {
     actions: {
         async load() {
             try {
-                const stateString = await GM.getValue(KEY_STATE, '{}') || '{}'
+                const stateString = await GM.getValue(HYDRATION_KEY, '{}')
                 const parsedState = JSON.parse(stateString) as State
                 this.$patch(parsedState)
 
@@ -77,7 +73,7 @@ export const useStore = defineStore('Store', {
         async save() {
             try {
                 const stateString = JSON.stringify(this.$state)
-                await GM.setValue(KEY_STATE, stateString)
+                await GM.setValue(HYDRATION_KEY, stateString)
                 console.info(DEFINE.NAME, 'Store::save', `'${stateString}'`)
             } catch (err) {
                 console.warn(DEFINE.NAME, err)
@@ -96,12 +92,35 @@ export const useStore = defineStore('Store', {
             this.categories.splice(idx, 1)
         },
 
-        bubbleCategory(idx: number) {
+        moveCategoryUp(idx: number) {
+            if (idx === 0) {
+                return
+            }
+
+            const prev = this.categories[idx - 1]
             const target = this.categories[idx]
 
             this.categories = [
+                ...this.categories.slice(0, idx - 1),
                 target,
-                ...this.categories.filter((el) => el !== target),
+                prev,
+                ...this.categories.slice(idx + 1),
+            ]
+        },
+
+        moveCategoryDown(idx: number) {
+            if (idx === this.categories.length - 1) {
+                return
+            }
+
+            const target = this.categories[idx]
+            const next = this.categories[idx + 1]
+
+            this.categories = [
+                ...this.categories.slice(0, idx),
+                next,
+                target,
+                ...this.categories.slice(idx + 2),
             ]
         },
     },
