@@ -138,7 +138,7 @@ function renderBuckets(username: string, buckets: Array<Bucket>) {
         }
 
         const h3 = document.createElement('h3')
-        h3.textContent = `${bucket.title || 'Untitled Category'}`
+        h3.textContent = bucket.title || 'Untitled Category'
 
         const ul = document.createElement('ul')
         const repos = bucket.repos.sort((repoA, repoB) => repoA.name.localeCompare(repoB.name))
