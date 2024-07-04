@@ -4,8 +4,8 @@ import { Bucket, initBuckets } from './Bucket'
 import { computed, watch } from 'vue'
 
 export function useGitHubHomePage() {
-    const username = document.querySelector('.dashboard-sidebar summary > span.css-truncate')?.textContent?.trim()
-    console.info(DEFINE.NAME, 'useGitHubHomePage', username)
+    const username = document.querySelector('aside.feed-left-sidebar select-panel button[data-test-selector] .Button-label')?.textContent?.trim()
+    console.info(DEFINE.NAME, 'useGitHubHomePage', `username:"${username}"`)
 
     const store = useStore()
     const categories = computed(() => store.categories)
