@@ -64,9 +64,9 @@ export const useStore = defineStore('Store', {
                 const parsedState = JSON.parse(stateString) as State
                 this.$patch(parsedState)
 
-                console.info(DEFINE.NAME, 'Store::load', parsedState)
+                console.info(__NAME__, 'Store::load', parsedState)
             } catch (err) {
-                console.warn(DEFINE.NAME, err)
+                console.warn(__NAME__, err)
             }
         },
 
@@ -74,9 +74,9 @@ export const useStore = defineStore('Store', {
             try {
                 const stateString = JSON.stringify(this.$state)
                 await GM.setValue(HYDRATION_KEY, stateString)
-                console.info(DEFINE.NAME, 'Store::save', `'${stateString}'`)
+                console.info(__NAME__, 'Store::save', `'${stateString}'`)
             } catch (err) {
-                console.warn(DEFINE.NAME, err)
+                console.warn(__NAME__, err)
             }
         },
 

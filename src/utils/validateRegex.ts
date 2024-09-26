@@ -1,4 +1,4 @@
-import { Message } from './Message'
+import type { Message } from './Message.ts'
 
 export function validateRegex(regexp: string): Message | null {
     try {

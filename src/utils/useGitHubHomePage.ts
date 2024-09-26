@@ -1,15 +1,15 @@
-import { Category, useStore } from '@/store/useStore'
-import { waitDelayedPredicate } from '@/utils/waitDelayedPredicate'
-import { Bucket, initBuckets } from './Bucket'
+import { type Category, useStore } from '../store/useStore.ts'
+import { waitDelayedPredicate } from '../utils/waitDelayedPredicate.ts'
+import { type Bucket, initBuckets } from './Bucket.ts'
 import { computed, watch } from 'vue'
 
 export function useGitHubHomePage() {
     const username = document.querySelector('aside.feed-left-sidebar button[data-test-selector="account-context"] .Button-label')?.textContent?.trim()
-    console.info(DEFINE.NAME, 'useGitHubHomePage', `username:"${username}"`)
+    console.info(__NAME__, 'useGitHubHomePage', `username:"${username}"`)
 
     const store = useStore()
     const categories = computed(() => store.categories)
-    watch(categories, async() => {
+    watch(categories, async () => {
         if (!username) {
             return
         }
@@ -50,7 +50,7 @@ async function openRepoList() {
         return true
     }
 
-    console.info(DEFINE.NAME, 'Searching for showMoreBtns')
+    console.info(__NAME__, 'Searching for showMoreBtns')
     await waitDelayedPredicate(() => {
         showMoreBtns = [...document.querySelectorAll<HTMLButtonElement>('.Details.js-repos-container .js-more-repos-form > button')]
         return showMoreBtns.length === 2
@@ -61,7 +61,7 @@ async function openRepoList() {
     }
 
     // Wait until the "Show more" button is no longer visible
-    console.info(DEFINE.NAME, 'Waiting for showMoreBtns to be hidden')
+    console.info(__NAME__, 'Waiting for showMoreBtns to be hidden')
     await waitDelayedPredicate(allBtnsHidden)
 
     hasOpened = true
@@ -79,7 +79,7 @@ function parseBuckets(username: string, categories: Array<Category>) {
 
     const root = document.querySelectorAll<HTMLDivElement>('.Details.js-repos-container > .js-repos-container')[0]
     const repoRows = root.querySelectorAll<HTMLLIElement>('ul li.source')
-    console.info(DEFINE.NAME, `Found ${repoRows?.length} repos`)
+    console.info(__NAME__, `Found ${repoRows?.length} repos`)
 
     for (const repoRow of repoRows) {
         const url = repoRow.querySelector('a[href^="/"]')?.getAttribute('href')

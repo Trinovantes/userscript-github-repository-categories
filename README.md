@@ -17,7 +17,7 @@ Categorize GitHub repositories by matching repository names with regular express
 1. Install prereqs
 
     * `node`
-    * `yarn`
+    * `pnpm`
     * Tampermonkey on Chrome
 
 2. In Chrome:
@@ -29,8 +29,8 @@ Categorize GitHub repositories by matching repository names with regular express
 3. Run dev server
 
     ```
-    yarn install
-    yarn dev
+    pnpm install
+    pnpm dev
     ```
 
 4. In Chrome:

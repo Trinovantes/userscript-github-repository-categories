@@ -1,17 +1,17 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { projectTitle, projectUrl } from '@/Constants'
-import { useStore } from '@/store/useStore'
-import { Message } from '@/utils/Message'
-import { validateNumber } from '@/utils/validateNumber'
-import { validateRegex } from '@/utils/validateRegex'
+import { projectTitle, projectUrl } from '../Constants.ts'
+import { useStore } from '../store/useStore.ts'
+import type { Message } from '../utils/Message.ts'
+import { validateNumber } from '../utils/validateNumber.ts'
+import { validateRegex } from '../utils/validateRegex.ts'
 
 const emit = defineEmits(['close'])
 
 const store = useStore()
 const categories = computed(() => store.categories)
 const errorMessages = ref<Array<Message>>([])
-const save = async() => {
+const save = async () => {
     errorMessages.value = []
 
     for (const category of categories.value) {
@@ -38,12 +38,12 @@ const save = async() => {
     emit('close')
 }
 
-const cancel = async() => {
+const cancel = async () => {
     await store.load()
     emit('close')
 }
 
-const resetToDefaults = async() => {
+const resetToDefaults = async () => {
     store.$reset()
     await store.save()
 }
@@ -201,13 +201,13 @@ article{
         text-indent: -9999px;
 
         &.up{
-            background-image: url('@/assets/img/up.png');
+            background-image: url('../assets/img/up.png');
         }
         &.down{
-            background-image: url('@/assets/img/down.png');
+            background-image: url('../assets/img/down.png');
         }
         &.delete{
-            background-image: url('@/assets/img/delete.png');
+            background-image: url('../assets/img/delete.png');
         }
     }
 

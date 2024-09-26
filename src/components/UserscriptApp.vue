@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useGitHubHomePage } from '@/utils/useGitHubHomePage'
+import { useGitHubHomePage } from '../utils/useGitHubHomePage.ts'
 import UserscriptAppSettings from './UserscriptAppSettings.vue'
-import { projectTitle } from '@/Constants'
+import { projectTitle } from '../Constants.ts'
 
 const { username } = useGitHubHomePage()
 
@@ -34,7 +34,7 @@ const dialogRef = ref<HTMLDialogElement | null>(null)
 
 <style lang="scss" scoped>
 button.settings-btn{
-    background-image: url('@/assets/img/settings.png');
+    background-image: url('@img/settings.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: 50% 50%;

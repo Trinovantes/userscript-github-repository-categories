@@ -1,4 +1,4 @@
-import { Message } from './Message'
+import type { Message } from './Message.ts'
 
 export function validateNumber(n: number, label: string, min?: number, max?: number): Array<Message> {
     const errors: Array<Message> = []
