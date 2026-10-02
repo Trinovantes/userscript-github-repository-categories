@@ -2,10 +2,13 @@ import { type Category, useStore } from '../store/useStore.ts'
 import { waitDelayedPredicate } from '../utils/waitDelayedPredicate.ts'
 import { type Bucket, initBuckets } from './Bucket.ts'
 import { computed, watch } from 'vue'
+import { findDelayedElement } from './findDelayedElement.ts'
 
 export function useGitHubHomePage() {
-    const username = document.querySelector('aside.feed-left-sidebar button[data-test-selector="account-context"] .Button-label')?.textContent?.trim()
+    const username = document.querySelector('aside .dashboard-sidebar img.avatar + div > div:has(+select-panel) span.text-bold')?.textContent?.trim()
     console.info(__NAME__, 'useGitHubHomePage', `username:"${username}"`)
+
+    let hasOpened = false
 
     const store = useStore()
     const categories = computed(() => store.categories)
@@ -14,9 +17,13 @@ export function useGitHubHomePage() {
             return
         }
 
-        await openRepoList()
+        if (!hasOpened) {
+            await openRepoList()
+            hasOpened = true
+        }
+
         const buckets = parseBuckets(username, categories.value)
-        renderBuckets(username, buckets)
+        await renderBuckets(username, buckets)
     }, {
         deep: true,
         immediate: true,
@@ -27,44 +34,24 @@ export function useGitHubHomePage() {
     }
 }
 
-let hasOpened = false
 async function openRepoList() {
-    if (hasOpened) {
-        return
-    }
+    console.groupCollapsed(__NAME__, 'Clicking showMoreBtn')
+    const showMoreBtn = await findDelayedElement('nav[data-testid="dashboard-repositories"] button[data-testid="dynamic-side-panel-items-show-more"]')
+    showMoreBtn.click()
+    console.groupEnd()
 
-    // GitHub homepage has 2 "Show More" buttons
-    //  - 1 btn for desktop
-    //  - 1 btn for mobile
-    let showMoreBtns: Array<HTMLElement> = []
-    const allBtnsHidden = () => {
-        for (const btn of showMoreBtns) {
-            if (btn.offsetParent !== null) {
-                return false
-            }
-            if (document.body.contains(btn)) {
-                return false
-            }
+    console.groupCollapsed(__NAME__, 'Waiting for showMoreBtn to be hidden')
+    await waitDelayedPredicate(() => {
+        if (showMoreBtn.offsetParent !== null) {
+            return false
+        }
+        if (document.body.contains(showMoreBtn)) {
+            return false
         }
 
         return true
-    }
-
-    console.info(__NAME__, 'Searching for showMoreBtns')
-    await waitDelayedPredicate(() => {
-        showMoreBtns = [...document.querySelectorAll<HTMLButtonElement>('.Details.js-repos-container .js-more-repos-form > button')]
-        return showMoreBtns.length === 2
     })
-
-    for (const btn of showMoreBtns) {
-        btn.click()
-    }
-
-    // Wait until the "Show more" button is no longer visible
-    console.info(__NAME__, 'Waiting for showMoreBtns to be hidden')
-    await waitDelayedPredicate(allBtnsHidden)
-
-    hasOpened = true
+    console.groupEnd()
 }
 
 function parseBuckets(username: string, categories: Array<Category>) {
@@ -77,8 +64,7 @@ function parseBuckets(username: string, categories: Array<Category>) {
         repos: [],
     }
 
-    const root = document.querySelectorAll<HTMLDivElement>('.Details.js-repos-container > .js-repos-container')[0]
-    const repoRows = root.querySelectorAll<HTMLLIElement>('ul li.source')
+    const repoRows = document.querySelectorAll<HTMLLIElement>('nav[data-testid="dashboard-repositories"] li[data-component="ActionList.Item"]')
     console.info(__NAME__, `Found ${repoRows?.length} repos`)
 
     for (const repoRow of repoRows) {
@@ -121,24 +107,26 @@ function parseBuckets(username: string, categories: Array<Category>) {
     ]
 }
 
-function renderBuckets(username: string, buckets: Array<Bucket>) {
-    const root = document.querySelectorAll<HTMLDivElement>('.Details.js-repos-container > .js-repos-container')[0]
+async function renderBuckets(username: string, buckets: Array<Bucket>) {
+    console.groupCollapsed(__NAME__, 'Bucket Root')
+
+    const root = await findDelayedElement('nav[data-testid=dashboard-repositories] li[class^="prc-ActionList-Group"] > ul')
+
+    // Add class for css
     root.classList.add('github-repository-categories')
 
-    for (const el of root.querySelectorAll('ul li.source')) {
-        el.parentElement?.removeChild(el)
-    }
-    for (const el of root.querySelectorAll('h3')) {
-        el.parentElement?.removeChild(el)
-    }
+    // Remove searchbox (since it doesn't work for some reason after inserting our own headings)
+    const searchBox = await findDelayedElement('nav[data-testid="dashboard-repositories"] div[data-component="GroupHeadingWrap"]:has(button[data-testid="dynamic-side-panel-items-search-button"])')
+    searchBox.remove()
 
+    // Add back nodes with headings
     for (const bucket of buckets) {
         if (!bucket.repos.length) {
             continue
         }
 
-        const h3 = document.createElement('h3')
-        h3.textContent = bucket.title || 'Untitled Category'
+        const heading = document.createElement('h3')
+        heading.textContent = bucket.title || 'Untitled Category'
 
         const ul = document.createElement('ul')
         const repos = bucket.repos.sort((repoA, repoB) => repoA.name.localeCompare(repoB.name))
@@ -148,19 +136,16 @@ function renderBuckets(username: string, buckets: Array<Bucket>) {
 
             // Remove 'username/' prefix from our own repos
             if (repo.owner === username) {
-                const slash = li.querySelector('a > span')
-                slash?.setAttribute('style', 'display:none;')
-
-                const ownerName = li.querySelector('a.markdown-title')?.childNodes?.[0]
-                if (ownerName?.textContent?.trim() === username) {
-                    ownerName.remove()
-                }
+                const labelNode = await findDelayedElement('span[data-component="ActionList.Item.Label"]', li)
+                labelNode.textContent = labelNode.textContent.replace(`${username}/`, '')
             }
 
             ul.append(li)
         }
 
-        root.append(h3)
+        root.append(heading)
         root.append(ul)
     }
+
+    console.groupEnd()
 }
